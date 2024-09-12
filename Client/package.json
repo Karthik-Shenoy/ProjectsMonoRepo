@@ -1,0 +1,12 @@
+{
+  "name": "word-roulette",
+  "version": "1.0.0",
+  "description": "a game called word roulette",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p . && del .\\dist\\bundles\\bundle.js && browserify transpiledFiles/index.js >> ./dist/bundles/bundle.js"
+  },
+  "author": "karthik sheny",
+  "license": "ISC"
+}
