@@ -1,4 +1,4 @@
-export const GAME_SERVER_URL = "http://192.168.1.2:3000";
+export const GAME_SERVER_URL = "http://48.217.80.100:3000";
 
 export const WORD_ENTRY_TIME = 30;
 
