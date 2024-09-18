@@ -30,7 +30,21 @@ export namespace MathUtils {
      */
     export const getRectDrawCoordinates = (x: number, y: number, w: number, h: number): Point => {
         return { x: x - w / 2, y: y - h / 2 };
-    }
+    };
+}
+
+export namespace GenericUtils {
+    /**
+     * returns 3 random distinct characters
+     */
+    export const getRandomChars = (): [string, string, string] => {
+        const randomChars = new Set<string>();
+        while (randomChars.size < 3) {
+            const randomChar = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+            randomChars.add(randomChar);
+        }
+        return [...randomChars] as [string, string, string];
+    };
 }
 
 export namespace RenderUtils {
@@ -40,5 +54,5 @@ export namespace RenderUtils {
         gradient.addColorStop(0.5, "blue");
         gradient.addColorStop(1.0, "red");
         return gradient;
-    }
+    };
 }

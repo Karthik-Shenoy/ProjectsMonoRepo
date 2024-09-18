@@ -27,6 +27,7 @@ class MainPageController {
             const [userName, roomId] = [userNameInputElement.value, roomInputElement.value];
             if (userName === "" || roomId === "") {
                 this.showError("Please enter a valid username and room id");
+                return;
             }
             GameState_1.GameState.getInstance().setLocalPlayerName(userName);
             API_1.API.createGame(userName, roomId).then(() => {

@@ -69,6 +69,11 @@ body {
     color: red;
 }
 
+.random-chars-prompt {
+    font-size: small;
+    
+}
+
 .timer-div {
     border-width: 1px;
     width: 40px;

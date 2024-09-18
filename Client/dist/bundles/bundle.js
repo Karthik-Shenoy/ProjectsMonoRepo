@@ -224,6 +224,7 @@ const API_1 = require("../../API/API");
 const GameState_1 = require("../../App/GameState");
 const RTCManager_1 = require("../../RTC/RTCManager");
 const Constants_1 = require("../../Shared/Constants");
+const Utils_1 = require("../Utils");
 const enterKey = "Enter";
 class InputDialogController {
     constructor(previousWord) {
@@ -256,12 +257,18 @@ class InputDialogController {
             }
         });
         this.validateWord = (word) => __awaiter(this, void 0, void 0, function* () {
+            var _b, _c;
             if (word.length === 0) {
                 throw new Error("Word cannot be empty");
             }
             const response = yield API_1.API.isWordValid(word);
             if (!response.isValid) {
                 throw new Error("the given word is not valid english word");
+            }
+            // check if word includes any 2 of the random chars
+            if (!((_b = this.currRandomChars) === null || _b === void 0 ? void 0 : _b.some((char) => word.includes(char))) ||
+                ((_c = this.currRandomChars) === null || _c === void 0 ? void 0 : _c.filter((char) => word.includes(char)).length) < 2) {
+                throw new Error("Word does not contain 2 of the random chars");
             }
             if (this.previousWord.length > 0 &&
                 word[0].toLowerCase() !== this.previousWord[this.previousWord.length - 1].toLowerCase()) {
@@ -281,6 +288,7 @@ class InputDialogController {
             };
             this.setTimeoutHandle = setTimeout(updateTime, 0, 0);
         };
+        this.currRandomChars = Utils_1.GenericUtils.getRandomChars();
         this.dialogElement = document.getElementById(Constants_1.HTMLElementIds.dialog);
         this.dialogElement.showModal();
         // hide info content
@@ -304,6 +312,10 @@ class InputDialogController {
         this.createTimer();
     }
     updatePreviousWordPrompt() {
+        var _a, _b;
+        // move to a different function
+        const randomCharsSpan = document.getElementById(Constants_1.HTMLElementIds.randomCharsSpan);
+        randomCharsSpan.textContent = (_b = (_a = this.currRandomChars) === null || _a === void 0 ? void 0 : _a.join(", ")) !== null && _b !== void 0 ? _b : "";
         const firstPreviousWordPrompt = document.getElementById(Constants_1.HTMLElementIds.firstPreviousWordPrompt);
         const previousWordPrompt = document.getElementById(Constants_1.HTMLElementIds.previousWordPrompt);
         if (!this.previousWord) {
@@ -327,7 +339,7 @@ class InputDialogController {
 }
 exports.InputDialogController = InputDialogController;
 
-},{"../../API/API":1,"../../App/GameState":3,"../../RTC/RTCManager":11,"../../Shared/Constants":14}],6:[function(require,module,exports){
+},{"../../API/API":1,"../../App/GameState":3,"../../RTC/RTCManager":11,"../../Shared/Constants":14,"../Utils":9}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MainPageController = void 0;
@@ -357,6 +369,7 @@ class MainPageController {
             const [userName, roomId] = [userNameInputElement.value, roomInputElement.value];
             if (userName === "" || roomId === "") {
                 this.showError("Please enter a valid username and room id");
+                return;
             }
             GameState_1.GameState.getInstance().setLocalPlayerName(userName);
             API_1.API.createGame(userName, roomId).then(() => {
@@ -720,7 +733,7 @@ exports.RoundController = RoundController;
 },{"../Interop/Interop":10,"../Shared/EventHandlerUtils":15,"../Shared/Utils":16,"./DialogController/InfoDialogController":4,"./Utils":9}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RenderUtils = exports.MathUtils = void 0;
+exports.RenderUtils = exports.GenericUtils = exports.MathUtils = void 0;
 const GameState_1 = require("../App/GameState");
 const Constants_1 = require("../Shared/Constants");
 var MathUtils;
@@ -750,6 +763,20 @@ var MathUtils;
         return { x: x - w / 2, y: y - h / 2 };
     };
 })(MathUtils || (exports.MathUtils = MathUtils = {}));
+var GenericUtils;
+(function (GenericUtils) {
+    /**
+     * returns 3 random distinct characters
+     */
+    GenericUtils.getRandomChars = () => {
+        const randomChars = new Set();
+        while (randomChars.size < 3) {
+            const randomChar = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+            randomChars.add(randomChar);
+        }
+        return [...randomChars];
+    };
+})(GenericUtils || (exports.GenericUtils = GenericUtils = {}));
 var RenderUtils;
 (function (RenderUtils) {
     RenderUtils.getGradient = (ctx, width) => {
@@ -991,7 +1018,7 @@ exports.addWindowResizeHandler = addWindowResizeHandler;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ratios = exports.HTMLElementIds = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
-exports.GAME_SERVER_URL = "http://48.217.80.100:3000";
+exports.GAME_SERVER_URL = "http://192.168.1.2:3000";
 exports.WORD_ENTRY_TIME = 20;
 var HTMLElementIds;
 (function (HTMLElementIds) {
@@ -1009,6 +1036,7 @@ var HTMLElementIds;
     HTMLElementIds["infoDialogContent"] = "info-dialog-content";
     HTMLElementIds["infoDialogText"] = "info-dialog-text";
     HTMLElementIds["wordErrorOutput"] = "word-error-output";
+    HTMLElementIds["randomCharsSpan"] = "random-chars-span";
     // main menu
     HTMLElementIds["mainMenuContainer"] = "main-menu-container";
     HTMLElementIds["mainMenu"] = "main-menu";

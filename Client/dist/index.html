@@ -55,31 +55,30 @@
         </div>
         <dialog class="dialog-container" id="dialog">
             <div class="flex-div" id="word-prompt-dialog-content">
-                <p id="first-previous-word-prompt">
-                    You're starting!!, enter any word
-                </p>
+                <p id="first-previous-word-prompt">You're starting!!, enter any word</p>
                 <p id="previous-word-prompt">
                     The previous word was
                     <span class="highlighted-word" id="previous-word-span"></span>
                 </p>
                 <p class="small-text">
+                    include 2 of the following characters:
+                    <span class="highlighted-word" id="random-chars-span"></span>
+                </p>
+                <p class="small-text">
                     It's your turn enter your word, don't
                     <span class="highlighted-word">kill</span> yourself, good luck!
                 </p>
-                <input type="text" id="word-input-text-box" autocomplete="off"/>
+                <input type="text" id="word-input-text-box" autocomplete="off" />
                 <div>
                     <button id="submit-button">submit</button>
                 </div>
                 <div class="timer-div">
                     <p id="timer-text"></p>
                 </div>
-                <div class="error-output word-error-output" id="word-error-output">
-                </div>
+                <div class="error-output word-error-output" id="word-error-output"></div>
             </div>
             <div id="info-dialog-content" class="flex-div info-container">
-                <p id="info-dialog-text">
-                    Hello World
-                </p>
+                <p id="info-dialog-text">Hello Bitches</p>
             </div>
         </dialog>
     </body>

@@ -120,6 +120,7 @@ export class MainPageController implements RTCMessageSubscriber {
 
         if (userName === "" || roomId === "") {
             this.showError("Please enter a valid username and room id");
+            return;
         }
 
         GameState.getInstance().setLocalPlayerName(userName);

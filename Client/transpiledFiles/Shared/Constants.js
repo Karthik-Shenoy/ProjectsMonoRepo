@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ratios = exports.HTMLElementIds = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
-exports.GAME_SERVER_URL = "http://48.217.80.100:3000";
+exports.GAME_SERVER_URL = "http://192.168.1.2:3000";
 exports.WORD_ENTRY_TIME = 20;
 var HTMLElementIds;
 (function (HTMLElementIds) {
@@ -19,6 +19,7 @@ var HTMLElementIds;
     HTMLElementIds["infoDialogContent"] = "info-dialog-content";
     HTMLElementIds["infoDialogText"] = "info-dialog-text";
     HTMLElementIds["wordErrorOutput"] = "word-error-output";
+    HTMLElementIds["randomCharsSpan"] = "random-chars-span";
     // main menu
     HTMLElementIds["mainMenuContainer"] = "main-menu-container";
     HTMLElementIds["mainMenu"] = "main-menu";

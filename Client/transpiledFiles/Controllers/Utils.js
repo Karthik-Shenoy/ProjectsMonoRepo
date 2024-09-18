@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RenderUtils = exports.MathUtils = void 0;
+exports.RenderUtils = exports.GenericUtils = exports.MathUtils = void 0;
 const GameState_1 = require("../App/GameState");
 const Constants_1 = require("../Shared/Constants");
 var MathUtils;
@@ -30,6 +30,20 @@ var MathUtils;
         return { x: x - w / 2, y: y - h / 2 };
     };
 })(MathUtils || (exports.MathUtils = MathUtils = {}));
+var GenericUtils;
+(function (GenericUtils) {
+    /**
+     * returns 3 random distinct characters
+     */
+    GenericUtils.getRandomChars = () => {
+        const randomChars = new Set();
+        while (randomChars.size < 3) {
+            const randomChar = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+            randomChars.add(randomChar);
+        }
+        return [...randomChars];
+    };
+})(GenericUtils || (exports.GenericUtils = GenericUtils = {}));
 var RenderUtils;
 (function (RenderUtils) {
     RenderUtils.getGradient = (ctx, width) => {

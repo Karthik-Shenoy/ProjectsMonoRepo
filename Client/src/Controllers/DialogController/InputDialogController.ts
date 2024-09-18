@@ -2,8 +2,9 @@ import { API } from "../../API/API";
 import { GameState } from "../../App/GameState";
 import { RTCManager } from "../../RTC/RTCManager";
 import { HTMLElementIds, WORD_ENTRY_TIME } from "../../Shared/Constants";
+import { GenericUtils } from "../Utils";
 
-const enterKey = "Enter"
+const enterKey = "Enter";
 
 export class InputDialogController {
     private submitButton: HTMLButtonElement;
@@ -11,8 +12,10 @@ export class InputDialogController {
     private dialogElement: HTMLDialogElement;
     private submitCallback: ((word: string) => void) | undefined;
     private setTimeoutHandle: number | undefined;
+    private currRandomChars: [string, string, string] | undefined;
 
     constructor(private previousWord: string) {
+        this.currRandomChars = GenericUtils.getRandomChars();
         this.dialogElement = document.getElementById(HTMLElementIds.dialog) as HTMLDialogElement;
         this.dialogElement.showModal();
 
@@ -44,11 +47,12 @@ export class InputDialogController {
             if (event.key === enterKey) {
                 this.submitHandler();
             }
-        }
+        };
 
         this.updatePreviousWordPrompt();
 
         this.createTimer();
+        
     }
 
     public setOnSubmitCallback = (callback: (word: string) => void) => {
@@ -56,6 +60,12 @@ export class InputDialogController {
     };
 
     private updatePreviousWordPrompt() {
+        // move to a different function
+        const randomCharsSpan = document.getElementById(
+            HTMLElementIds.randomCharsSpan
+        ) as HTMLSpanElement;
+        randomCharsSpan.textContent = this.currRandomChars?.join(", ") ?? "";
+
         const firstPreviousWordPrompt = document.getElementById(
             HTMLElementIds.firstPreviousWordPrompt
         ) as HTMLParagraphElement;
@@ -89,7 +99,7 @@ export class InputDialogController {
             if (shouldSubmitEmpty) {
                 word = "";
             }
-            !shouldSubmitEmpty && await this.validateWord(word);
+            !shouldSubmitEmpty && (await this.validateWord(word));
 
             this.hideErrorOutputDiv();
 
@@ -109,9 +119,16 @@ export class InputDialogController {
 
         const response = await API.isWordValid(word);
 
-        if(!response.isValid)
-        { 
+        if (!response.isValid) {
             throw new Error("the given word is not valid english word");
+        }
+
+        // check if word includes any 2 of the random chars
+        if (
+            !this.currRandomChars?.some((char) => word.includes(char)) ||
+            this.currRandomChars?.filter((char) => word.includes(char)).length < 2
+        ) {
+            throw new Error("Word does not contain 2 of the random chars");
         }
 
         if (

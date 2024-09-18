@@ -1,6 +1,6 @@
-export const GAME_SERVER_URL = "http://48.217.80.100:3000";
+export const GAME_SERVER_URL = "http://192.168.1.2:3000";
 
-export const WORD_ENTRY_TIME = 20;
+export const WORD_ENTRY_TIME = 30;
 
 export enum HTMLElementIds {
     gameCanvas = "game-canvas",
@@ -18,6 +18,7 @@ export enum HTMLElementIds {
     infoDialogContent = "info-dialog-content",
     infoDialogText = "info-dialog-text",
     wordErrorOutput = "word-error-output",
+    randomCharsSpan = "random-chars-span",
 
 
     // main menu

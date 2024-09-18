@@ -14,6 +14,7 @@ const API_1 = require("../../API/API");
 const GameState_1 = require("../../App/GameState");
 const RTCManager_1 = require("../../RTC/RTCManager");
 const Constants_1 = require("../../Shared/Constants");
+const Utils_1 = require("../Utils");
 const enterKey = "Enter";
 class InputDialogController {
     constructor(previousWord) {
@@ -46,12 +47,18 @@ class InputDialogController {
             }
         });
         this.validateWord = (word) => __awaiter(this, void 0, void 0, function* () {
+            var _b, _c;
             if (word.length === 0) {
                 throw new Error("Word cannot be empty");
             }
             const response = yield API_1.API.isWordValid(word);
             if (!response.isValid) {
                 throw new Error("the given word is not valid english word");
+            }
+            // check if word includes any 2 of the random chars
+            if (!((_b = this.currRandomChars) === null || _b === void 0 ? void 0 : _b.some((char) => word.includes(char))) ||
+                ((_c = this.currRandomChars) === null || _c === void 0 ? void 0 : _c.filter((char) => word.includes(char)).length) < 2) {
+                throw new Error("Word does not contain 2 of the random chars");
             }
             if (this.previousWord.length > 0 &&
                 word[0].toLowerCase() !== this.previousWord[this.previousWord.length - 1].toLowerCase()) {
@@ -71,6 +78,7 @@ class InputDialogController {
             };
             this.setTimeoutHandle = setTimeout(updateTime, 0, 0);
         };
+        this.currRandomChars = Utils_1.GenericUtils.getRandomChars();
         this.dialogElement = document.getElementById(Constants_1.HTMLElementIds.dialog);
         this.dialogElement.showModal();
         // hide info content
@@ -94,6 +102,10 @@ class InputDialogController {
         this.createTimer();
     }
     updatePreviousWordPrompt() {
+        var _a, _b;
+        // move to a different function
+        const randomCharsSpan = document.getElementById(Constants_1.HTMLElementIds.randomCharsSpan);
+        randomCharsSpan.textContent = (_b = (_a = this.currRandomChars) === null || _a === void 0 ? void 0 : _a.join(", ")) !== null && _b !== void 0 ? _b : "";
         const firstPreviousWordPrompt = document.getElementById(Constants_1.HTMLElementIds.firstPreviousWordPrompt);
         const previousWordPrompt = document.getElementById(Constants_1.HTMLElementIds.previousWordPrompt);
         if (!this.previousWord) {
