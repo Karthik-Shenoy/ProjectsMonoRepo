@@ -14,6 +14,7 @@ import { App } from "./App";
 export class GameState implements RTCMessageSubscriber {
     private static instance: GameState | undefined;
     private localPlayerController: PlayerController | null;
+    private bgmMusicAudio: HTMLAudioElement;
 
     private _drawableObjectsList: IDrawable[];
 
@@ -54,6 +55,10 @@ export class GameState implements RTCMessageSubscriber {
         return this.localPlayerUsername;
     }
 
+    public getPlayerControllersList(): PlayerController[] {
+        return this.roundController.getPlayerControllersList();
+    }
+
     public handleRTCMessage(message: RTCMessage) {
         if (message.messageType === interop.MessageType.GAME_START_BROADCAST) {
             Object.keys(message.positionMap).forEach(() => {
@@ -73,7 +78,12 @@ export class GameState implements RTCMessageSubscriber {
         }
         // start round and rendering
         this.roundController.startRound();
+        this.playBgMusic();
         GameRenderer.getInstance().render();
+    }
+
+    private playBgMusic() {
+        this.bgmMusicAudio.play();
     }
 
     private constructor(
@@ -87,5 +97,12 @@ export class GameState implements RTCMessageSubscriber {
             interop.MessageType.GAME_START_BROADCAST,
             this
         );
+
+        this.bgmMusicAudio = document.createElement("audio");
+        this.bgmMusicAudio.src = "/dist/public/audio/bgm.mp3"
+        this.bgmMusicAudio.loop = true;
+        this.bgmMusicAudio.volume = 1
+
+        document.body.appendChild(this.bgmMusicAudio);
     }
 }

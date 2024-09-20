@@ -40,6 +40,9 @@ class GameState {
     getLocalPlayerName() {
         return this.localPlayerUsername;
     }
+    getPlayerControllersList() {
+        return this.roundController.getPlayerControllersList();
+    }
     handleRTCMessage(message) {
         if (message.messageType === Interop_1.interop.MessageType.GAME_START_BROADCAST) {
             Object.keys(message.positionMap).forEach(() => {
@@ -58,7 +61,11 @@ class GameState {
         }
         // start round and rendering
         this.roundController.startRound();
+        this.playBgMusic();
         GameRenderer_1.GameRenderer.getInstance().render();
+    }
+    playBgMusic() {
+        this.bgmMusicAudio.play();
     }
     constructor(roundController, localPlayerUsername) {
         this.roundController = roundController;
@@ -66,6 +73,11 @@ class GameState {
         this._drawableObjectsList = [];
         this.localPlayerController = null;
         RTCManager_1.RTCManager.getInstance().addRTCMessageSubscriber(Interop_1.interop.MessageType.GAME_START_BROADCAST, this);
+        this.bgmMusicAudio = document.createElement("audio");
+        this.bgmMusicAudio.src = "/dist/public/audio/bgm.mp3";
+        this.bgmMusicAudio.loop = true;
+        this.bgmMusicAudio.volume = 1;
+        document.body.appendChild(this.bgmMusicAudio);
     }
 }
 exports.GameState = GameState;

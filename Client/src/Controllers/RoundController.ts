@@ -8,6 +8,7 @@ import { RTCMessage, RTCMessageSubscriber } from "../RTC/RTCTypes";
 import { interop } from "../Interop/Interop";
 import { RTCManager } from "../RTC/RTCManager";
 import { InfoDialogController } from "./DialogController/InfoDialogController";
+import { ScoreboardController } from "./ScoreboardController/ScoreBoardController";
 
 /**
  * Singleton Controller to control the rounds
@@ -17,6 +18,8 @@ export class RoundController implements RTCMessageSubscriber {
     private playersList: PlayerController[];
     private previousWord: string;
     private lastDeadPlayerName: string;
+    private scoreBoardController: ScoreboardController;
+    private gameTimerExpired: boolean;
 
     constructor() {
         this.playersList = [];
@@ -24,6 +27,12 @@ export class RoundController implements RTCMessageSubscriber {
         EventHandlerUtils.getInstance().addWindowResizeHandler(this.positionPlayers);
         this.previousWord = "";
         this.lastDeadPlayerName = "";
+
+        this.scoreBoardController = new ScoreboardController();
+        this.gameTimerExpired = false;
+        setTimeout(() => {
+            this.gameTimerExpired = true;
+        }, 300 * 1000);
     }
 
     public addPlayer(playerController: PlayerController) {
@@ -35,10 +44,28 @@ export class RoundController implements RTCMessageSubscriber {
     }
 
     public startRound = async () => {
-        if(this.hasGameEnded()) {
-            new InfoDialogController(`Game Over ${this.playersList[0].getUserName()} wins!`);
+        if (this.hasGameEnded()) {
+            // improve code
+            const winner =
+                this.playersList.length > 1
+                    ? this.playersList.reduce((prev, curr) =>
+                          prev.getScore() > curr.getScore() ? prev : curr
+                      )
+                    : this.playersList[0];
+            if(this.playersList.length > 1)
+            {
+                new InfoDialogController(`Time's up, ${winner.getUserName()} wins! with ${winner.getScore()} points\u{1F929} `);
+            }
+            else 
+            {
+                new InfoDialogController(`Game Over ${winner.getUserName()} wins! \u{1F929}`);
+            }
+                
             return;
         }
+
+        this.scoreBoardController.updateScoreBoard();
+
         this.positionPlayers();
         this.playersList[this.currentPlayerIndex].highlightTurn();
         const inputText = await this.getInput(this.previousWord, this.lastDeadPlayerName);
@@ -86,8 +113,12 @@ export class RoundController implements RTCMessageSubscriber {
         }
     }
 
+    public getPlayerControllersList() {
+        return this.playersList;
+    }
+
     private hasGameEnded(): boolean {
-        return this.playersList.length === 1;
+        return this.playersList.length === 1 || this.gameTimerExpired;
     }
 
     private setCurrPlayerIndex(index: number) {

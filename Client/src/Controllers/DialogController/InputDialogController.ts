@@ -10,12 +10,15 @@ export class InputDialogController {
     private submitButton: HTMLButtonElement;
     private wordInputTextBox: HTMLInputElement;
     private dialogElement: HTMLDialogElement;
-    private submitCallback: ((word: string) => void) | undefined;
+    private submitCallback: ((word: string, score: number) => void) | undefined;
     private setTimeoutHandle: number | undefined;
-    private currRandomChars: [string, string, string] | undefined;
+    private currRandomChars: string[] | undefined;
 
     constructor(private previousWord: string) {
-        this.currRandomChars = GenericUtils.getRandomChars();
+        // improve code quality
+        this.currRandomChars = GenericUtils.getRandomChars(
+            previousWord.length > 0 ? [previousWord[previousWord.length - 1].toLowerCase()] : []
+        );
         this.dialogElement = document.getElementById(HTMLElementIds.dialog) as HTMLDialogElement;
         this.dialogElement.showModal();
 
@@ -52,10 +55,9 @@ export class InputDialogController {
         this.updatePreviousWordPrompt();
 
         this.createTimer();
-        
     }
 
-    public setOnSubmitCallback = (callback: (word: string) => void) => {
+    public setOnSubmitCallback = (callback: (word: string, score: number) => void) => {
         this.submitCallback = callback;
     };
 
@@ -103,14 +105,30 @@ export class InputDialogController {
 
             this.hideErrorOutputDiv();
 
-            this.submitCallback?.(word);
-            RTCManager.getInstance().sendWord(word, GameState.getInstance().getLocalPlayerName());
+            const score = this.getScore(word);
+
+            this.submitCallback?.(word, score);
+            RTCManager.getInstance().sendWord(
+                word,
+                score,
+                GameState.getInstance().getLocalPlayerName()
+            );
             this.wordInputTextBox.value = "";
             this.dispose();
         } catch (error: any) {
             this.showError(error.message);
         }
     };
+
+    private getScore(word: string): number {
+        return (
+            word.length +
+            (this.currRandomChars?.some((char) => word.includes(char))
+                ? this.currRandomChars?.filter((char) => word.includes(char)).length
+                : 0) *
+                10
+        );
+    }
 
     private validateWord = async (word: string) => {
         if (word.length === 0) {
@@ -123,12 +141,12 @@ export class InputDialogController {
             throw new Error("the given word is not valid english word");
         }
 
-        // check if word includes any 2 of the random chars
+        // check if word includes any of the random chars
         if (
             !this.currRandomChars?.some((char) => word.includes(char)) ||
-            this.currRandomChars?.filter((char) => word.includes(char)).length < 2
+            this.currRandomChars?.filter((char) => word.includes(char)).length < 1
         ) {
-            throw new Error("Word does not contain 2 of the random chars");
+            throw new Error("Word does not contain any of the random chars");
         }
 
         if (

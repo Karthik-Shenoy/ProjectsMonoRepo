@@ -80,6 +80,8 @@
     font-size: medium;
 }
 
+
+
 @media screen and (max-width: 768px) {
     .main-menu {
         width: 95vw;

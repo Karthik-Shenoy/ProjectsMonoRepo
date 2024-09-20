@@ -21,6 +21,7 @@ export namespace interop {
         messageType: MessageType.WORD;
         word: string;
         userName: string;
+        score: number;
     }
 
     export interface DeathMessage {

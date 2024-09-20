@@ -37,8 +37,9 @@ class InputDialogController {
                 }
                 !shouldSubmitEmpty && (yield this.validateWord(word));
                 this.hideErrorOutputDiv();
-                (_a = this.submitCallback) === null || _a === void 0 ? void 0 : _a.call(this, word);
-                RTCManager_1.RTCManager.getInstance().sendWord(word, GameState_1.GameState.getInstance().getLocalPlayerName());
+                const score = this.getScore(word);
+                (_a = this.submitCallback) === null || _a === void 0 ? void 0 : _a.call(this, word, score);
+                RTCManager_1.RTCManager.getInstance().sendWord(word, score, GameState_1.GameState.getInstance().getLocalPlayerName());
                 this.wordInputTextBox.value = "";
                 this.dispose();
             }
@@ -55,10 +56,10 @@ class InputDialogController {
             if (!response.isValid) {
                 throw new Error("the given word is not valid english word");
             }
-            // check if word includes any 2 of the random chars
+            // check if word includes any of the random chars
             if (!((_b = this.currRandomChars) === null || _b === void 0 ? void 0 : _b.some((char) => word.includes(char))) ||
-                ((_c = this.currRandomChars) === null || _c === void 0 ? void 0 : _c.filter((char) => word.includes(char)).length) < 2) {
-                throw new Error("Word does not contain 2 of the random chars");
+                ((_c = this.currRandomChars) === null || _c === void 0 ? void 0 : _c.filter((char) => word.includes(char)).length) < 1) {
+                throw new Error("Word does not contain any of the random chars");
             }
             if (this.previousWord.length > 0 &&
                 word[0].toLowerCase() !== this.previousWord[this.previousWord.length - 1].toLowerCase()) {
@@ -78,7 +79,8 @@ class InputDialogController {
             };
             this.setTimeoutHandle = setTimeout(updateTime, 0, 0);
         };
-        this.currRandomChars = Utils_1.GenericUtils.getRandomChars();
+        // improve code quality
+        this.currRandomChars = Utils_1.GenericUtils.getRandomChars(previousWord.length > 0 ? [previousWord[previousWord.length - 1].toLowerCase()] : []);
         this.dialogElement = document.getElementById(Constants_1.HTMLElementIds.dialog);
         this.dialogElement.showModal();
         // hide info content
@@ -116,6 +118,14 @@ class InputDialogController {
         firstPreviousWordPrompt.style.display = "none";
         const previousWordSpan = document.getElementById(Constants_1.HTMLElementIds.previousWordSpan);
         previousWordSpan.textContent = this.previousWord;
+    }
+    getScore(word) {
+        var _a, _b;
+        return (word.length +
+            (((_a = this.currRandomChars) === null || _a === void 0 ? void 0 : _a.some((char) => word.includes(char)))
+                ? (_b = this.currRandomChars) === null || _b === void 0 ? void 0 : _b.filter((char) => word.includes(char)).length
+                : 0) *
+                10);
     }
     showError(error) {
         const wordErrorOutput = document.getElementById(Constants_1.HTMLElementIds.wordErrorOutput);

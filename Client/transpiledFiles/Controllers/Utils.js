@@ -33,13 +33,15 @@ var MathUtils;
 var GenericUtils;
 (function (GenericUtils) {
     /**
-     * returns 3 random distinct characters
+     * returns 5 random distinct characters
      */
-    GenericUtils.getRandomChars = () => {
+    GenericUtils.getRandomChars = (excludeList) => {
         const randomChars = new Set();
-        while (randomChars.size < 3) {
+        while (randomChars.size < 5) {
             const randomChar = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
-            randomChars.add(randomChar);
+            if (!excludeList.includes(randomChar)) {
+                randomChars.add(randomChar);
+            }
         }
         return [...randomChars];
     };

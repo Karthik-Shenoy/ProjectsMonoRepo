@@ -1,4 +1,4 @@
-export const GAME_SERVER_URL = "http://48.217.80.100:3000";
+export const GAME_SERVER_URL = "http://192.168.1.3:3000";
 
 export const WORD_ENTRY_TIME = 30;
 
@@ -38,6 +38,10 @@ export enum HTMLElementIds {
     startGameButton = "start-game-button",
     roomCodeSpan = "room-code-span",
     playerList = "player-list",
+
+    // score board
+    scoreBoard = "score-board",
+    scoreBoardList = "score-board-list",
 }
 
 export const Ratios = {

@@ -60,13 +60,14 @@ export class RTCManager {
         });
     };
 
-    public sendWord = (word: string, userName: string) => {
+    public sendWord = (word: string, score:number, userName: string) => {
         this.isSocketOpen().then(() => {
             this.webSocketConnection.send(
                 JSON.stringify({
                     messageType: interop.MessageType.WORD,
                     word,
                     userName,
+                    score,
                 })
             );
         });
@@ -102,13 +103,14 @@ export class RTCManager {
             ?.forEach((subscriber) => subscriber.handleRTCMessage(message));
     };
 
-    public waitForNextWordMessage = (): Promise<string> => {
-        return new Promise<string>((resolve) => {
+    // [word, score]
+    public waitForNextWordMessage = (): Promise<[string, number]> => {
+        return new Promise<[string, number]>((resolve) => {
             const eventListener = (event: MessageEvent<any>) => {
                 const message: RTCMessage = JSON.parse(event.data);
                 if (message.messageType === interop.MessageType.WORD) {
                     this.webSocketConnection.removeEventListener("message", eventListener);
-                    resolve(message.word);
+                    resolve([message.word, message.score]);
                 }
             };
 

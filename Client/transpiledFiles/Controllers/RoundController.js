@@ -15,6 +15,7 @@ const Utils_1 = require("./Utils");
 const Utils_2 = require("../Shared/Utils");
 const Interop_1 = require("../Interop/Interop");
 const InfoDialogController_1 = require("./DialogController/InfoDialogController");
+const ScoreBoardController_1 = require("./ScoreboardController/ScoreBoardController");
 /**
  * Singleton Controller to control the rounds
  */
@@ -22,9 +23,19 @@ class RoundController {
     constructor() {
         this.startRound = () => __awaiter(this, void 0, void 0, function* () {
             if (this.hasGameEnded()) {
-                new InfoDialogController_1.InfoDialogController(`Game Over ${this.playersList[0].getUserName()} wins!`);
+                // improve code
+                const winner = this.playersList.length > 1
+                    ? this.playersList.reduce((prev, curr) => prev.getScore() > curr.getScore() ? prev : curr)
+                    : this.playersList[0];
+                if (this.playersList.length > 1) {
+                    new InfoDialogController_1.InfoDialogController(`Time's up, ${winner.getUserName()} wins! with ${winner.getScore()} points\u{1F929} `);
+                }
+                else {
+                    new InfoDialogController_1.InfoDialogController(`Game Over ${winner.getUserName()} wins! \u{1F929}`);
+                }
                 return;
             }
+            this.scoreBoardController.updateScoreBoard();
             this.positionPlayers();
             this.playersList[this.currentPlayerIndex].highlightTurn();
             const inputText = yield this.getInput(this.previousWord, this.lastDeadPlayerName);
@@ -103,6 +114,11 @@ class RoundController {
         EventHandlerUtils_1.EventHandlerUtils.getInstance().addWindowResizeHandler(this.positionPlayers);
         this.previousWord = "";
         this.lastDeadPlayerName = "";
+        this.scoreBoardController = new ScoreBoardController_1.ScoreboardController();
+        this.gameTimerExpired = false;
+        setTimeout(() => {
+            this.gameTimerExpired = true;
+        }, 300 * 1000);
     }
     addPlayer(playerController) {
         this.playersList.push(playerController);
@@ -119,8 +135,11 @@ class RoundController {
                 break;
         }
     }
+    getPlayerControllersList() {
+        return this.playersList;
+    }
     hasGameEnded() {
-        return this.playersList.length === 1;
+        return this.playersList.length === 1 || this.gameTimerExpired;
     }
     setCurrPlayerIndex(index) {
         this.currentPlayerIndex = index;

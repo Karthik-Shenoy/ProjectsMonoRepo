@@ -81,7 +81,7 @@ var API;
     });
 })(API || (exports.API = API = {}));
 
-},{"../Shared/Constants":14}],2:[function(require,module,exports){
+},{"../Shared/Constants":15}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
@@ -110,7 +110,7 @@ var App;
     };
 })(App || (exports.App = App = {}));
 
-},{"../Controllers/MainMenuController/MainMenuController":6,"../Controllers/RoundController":8,"../Shared/Constants":14,"./GameState":3}],3:[function(require,module,exports){
+},{"../Controllers/MainMenuController/MainMenuController":6,"../Controllers/RoundController":8,"../Shared/Constants":15,"./GameState":3}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameState = void 0;
@@ -153,6 +153,9 @@ class GameState {
     getLocalPlayerName() {
         return this.localPlayerUsername;
     }
+    getPlayerControllersList() {
+        return this.roundController.getPlayerControllersList();
+    }
     handleRTCMessage(message) {
         if (message.messageType === Interop_1.interop.MessageType.GAME_START_BROADCAST) {
             Object.keys(message.positionMap).forEach(() => {
@@ -171,7 +174,11 @@ class GameState {
         }
         // start round and rendering
         this.roundController.startRound();
+        this.playBgMusic();
         GameRenderer_1.GameRenderer.getInstance().render();
+    }
+    playBgMusic() {
+        this.bgmMusicAudio.play();
     }
     constructor(roundController, localPlayerUsername) {
         this.roundController = roundController;
@@ -179,11 +186,16 @@ class GameState {
         this._drawableObjectsList = [];
         this.localPlayerController = null;
         RTCManager_1.RTCManager.getInstance().addRTCMessageSubscriber(Interop_1.interop.MessageType.GAME_START_BROADCAST, this);
+        this.bgmMusicAudio = document.createElement("audio");
+        this.bgmMusicAudio.src = "/dist/public/audio/bgm.mp3";
+        this.bgmMusicAudio.loop = true;
+        this.bgmMusicAudio.volume = 1;
+        document.body.appendChild(this.bgmMusicAudio);
     }
 }
 exports.GameState = GameState;
 
-},{"../Controllers/PlayerController":7,"../Interop/Interop":10,"../RTC/RTCManager":11,"../Renderer/GameRenderer":12}],4:[function(require,module,exports){
+},{"../Controllers/PlayerController":7,"../Interop/Interop":11,"../RTC/RTCManager":12,"../Renderer/GameRenderer":13}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InfoDialogController = void 0;
@@ -207,7 +219,7 @@ class InfoDialogController {
 }
 exports.InfoDialogController = InfoDialogController;
 
-},{"../../Shared/Constants":14}],5:[function(require,module,exports){
+},{"../../Shared/Constants":15}],5:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -247,8 +259,9 @@ class InputDialogController {
                 }
                 !shouldSubmitEmpty && (yield this.validateWord(word));
                 this.hideErrorOutputDiv();
-                (_a = this.submitCallback) === null || _a === void 0 ? void 0 : _a.call(this, word);
-                RTCManager_1.RTCManager.getInstance().sendWord(word, GameState_1.GameState.getInstance().getLocalPlayerName());
+                const score = this.getScore(word);
+                (_a = this.submitCallback) === null || _a === void 0 ? void 0 : _a.call(this, word, score);
+                RTCManager_1.RTCManager.getInstance().sendWord(word, score, GameState_1.GameState.getInstance().getLocalPlayerName());
                 this.wordInputTextBox.value = "";
                 this.dispose();
             }
@@ -265,10 +278,10 @@ class InputDialogController {
             if (!response.isValid) {
                 throw new Error("the given word is not valid english word");
             }
-            // check if word includes any 2 of the random chars
+            // check if word includes any of the random chars
             if (!((_b = this.currRandomChars) === null || _b === void 0 ? void 0 : _b.some((char) => word.includes(char))) ||
-                ((_c = this.currRandomChars) === null || _c === void 0 ? void 0 : _c.filter((char) => word.includes(char)).length) < 2) {
-                throw new Error("Word does not contain 2 of the random chars");
+                ((_c = this.currRandomChars) === null || _c === void 0 ? void 0 : _c.filter((char) => word.includes(char)).length) < 1) {
+                throw new Error("Word does not contain any of the random chars");
             }
             if (this.previousWord.length > 0 &&
                 word[0].toLowerCase() !== this.previousWord[this.previousWord.length - 1].toLowerCase()) {
@@ -288,7 +301,8 @@ class InputDialogController {
             };
             this.setTimeoutHandle = setTimeout(updateTime, 0, 0);
         };
-        this.currRandomChars = Utils_1.GenericUtils.getRandomChars();
+        // improve code quality
+        this.currRandomChars = Utils_1.GenericUtils.getRandomChars(previousWord.length > 0 ? [previousWord[previousWord.length - 1].toLowerCase()] : []);
         this.dialogElement = document.getElementById(Constants_1.HTMLElementIds.dialog);
         this.dialogElement.showModal();
         // hide info content
@@ -327,6 +341,14 @@ class InputDialogController {
         const previousWordSpan = document.getElementById(Constants_1.HTMLElementIds.previousWordSpan);
         previousWordSpan.textContent = this.previousWord;
     }
+    getScore(word) {
+        var _a, _b;
+        return (word.length +
+            (((_a = this.currRandomChars) === null || _a === void 0 ? void 0 : _a.some((char) => word.includes(char)))
+                ? (_b = this.currRandomChars) === null || _b === void 0 ? void 0 : _b.filter((char) => word.includes(char)).length
+                : 0) *
+                10);
+    }
     showError(error) {
         const wordErrorOutput = document.getElementById(Constants_1.HTMLElementIds.wordErrorOutput);
         wordErrorOutput.style.display = "block";
@@ -339,7 +361,7 @@ class InputDialogController {
 }
 exports.InputDialogController = InputDialogController;
 
-},{"../../API/API":1,"../../App/GameState":3,"../../RTC/RTCManager":11,"../../Shared/Constants":14,"../Utils":9}],6:[function(require,module,exports){
+},{"../../API/API":1,"../../App/GameState":3,"../../RTC/RTCManager":12,"../../Shared/Constants":15,"../Utils":10}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MainPageController = void 0;
@@ -477,7 +499,7 @@ class MainPageController {
 }
 exports.MainPageController = MainPageController;
 
-},{"../../API/API":1,"../../App/GameState":3,"../../Interop/Interop":10,"../../RTC/RTCManager":11,"../../Shared/Constants":14}],7:[function(require,module,exports){
+},{"../../API/API":1,"../../App/GameState":3,"../../Interop/Interop":11,"../../RTC/RTCManager":12,"../../Shared/Constants":15}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerController = void 0;
@@ -543,14 +565,17 @@ class PlayerController {
             if (this.isLocalPlayer) {
                 return new Promise((resolve, _reject) => {
                     const dialogController = new InputDialogController_1.InputDialogController(previousWord);
-                    dialogController.setOnSubmitCallback((text) => resolve(text));
+                    dialogController.setOnSubmitCallback((text, score) => {
+                        resolve(text);
+                        this.score += score;
+                    });
                 });
             }
             return new Promise((resolve) => {
                 let infoDialog = null;
                 if (!previousWord) {
                     if (lastDeadPlayerName) {
-                        infoDialog = new InfoDialogController_1.InfoDialogController(`${lastDeadPlayerName} killed himself \u{1F602}. Waiting for ${this.username} to enter the word`);
+                        infoDialog = new InfoDialogController_1.InfoDialogController(`${lastDeadPlayerName} killed themselves \u{1F602}. Waiting for ${this.username} to enter the word`);
                     }
                     else {
                         infoDialog = new InfoDialogController_1.InfoDialogController(`Waiting for ${this.username} to enter the word`);
@@ -566,8 +591,9 @@ class PlayerController {
                 }
                 RTCManager_1.RTCManager.getInstance()
                     .waitForNextWordMessage()
-                    .then((word) => {
+                    .then(([word, score]) => {
                     resolve(word);
+                    this.score += score;
                     infoDialog === null || infoDialog === void 0 ? void 0 : infoDialog.dispose();
                 });
             });
@@ -578,6 +604,7 @@ class PlayerController {
         this.highlightType = Highlight.None;
         this.username = "";
         this.angle = 0;
+        this.score = 0;
     }
     // position self
     set position(newCoordinates) {
@@ -593,13 +620,16 @@ class PlayerController {
     getUserName() {
         return this.username;
     }
+    getScore() {
+        return this.score;
+    }
     kill() {
         this.isAlive = false;
     }
 }
 exports.PlayerController = PlayerController;
 
-},{"../RTC/RTCManager":11,"./DialogController/InfoDialogController":4,"./DialogController/InputDialogController":5,"./Utils":9}],8:[function(require,module,exports){
+},{"../RTC/RTCManager":12,"./DialogController/InfoDialogController":4,"./DialogController/InputDialogController":5,"./Utils":10}],8:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -617,6 +647,7 @@ const Utils_1 = require("./Utils");
 const Utils_2 = require("../Shared/Utils");
 const Interop_1 = require("../Interop/Interop");
 const InfoDialogController_1 = require("./DialogController/InfoDialogController");
+const ScoreBoardController_1 = require("./ScoreboardController/ScoreBoardController");
 /**
  * Singleton Controller to control the rounds
  */
@@ -624,9 +655,19 @@ class RoundController {
     constructor() {
         this.startRound = () => __awaiter(this, void 0, void 0, function* () {
             if (this.hasGameEnded()) {
-                new InfoDialogController_1.InfoDialogController(`Game Over ${this.playersList[0].getUserName()} wins!`);
+                // improve code
+                const winner = this.playersList.length > 1
+                    ? this.playersList.reduce((prev, curr) => prev.getScore() > curr.getScore() ? prev : curr)
+                    : this.playersList[0];
+                if (this.playersList.length > 1) {
+                    new InfoDialogController_1.InfoDialogController(`Time's up, ${winner.getUserName()} wins! with ${winner.getScore()} points\u{1F929} `);
+                }
+                else {
+                    new InfoDialogController_1.InfoDialogController(`Game Over ${winner.getUserName()} wins! \u{1F929}`);
+                }
                 return;
             }
+            this.scoreBoardController.updateScoreBoard();
             this.positionPlayers();
             this.playersList[this.currentPlayerIndex].highlightTurn();
             const inputText = yield this.getInput(this.previousWord, this.lastDeadPlayerName);
@@ -705,6 +746,11 @@ class RoundController {
         EventHandlerUtils_1.EventHandlerUtils.getInstance().addWindowResizeHandler(this.positionPlayers);
         this.previousWord = "";
         this.lastDeadPlayerName = "";
+        this.scoreBoardController = new ScoreBoardController_1.ScoreboardController();
+        this.gameTimerExpired = false;
+        setTimeout(() => {
+            this.gameTimerExpired = true;
+        }, 300 * 1000);
     }
     addPlayer(playerController) {
         this.playersList.push(playerController);
@@ -721,8 +767,11 @@ class RoundController {
                 break;
         }
     }
+    getPlayerControllersList() {
+        return this.playersList;
+    }
     hasGameEnded() {
-        return this.playersList.length === 1;
+        return this.playersList.length === 1 || this.gameTimerExpired;
     }
     setCurrPlayerIndex(index) {
         this.currentPlayerIndex = index;
@@ -730,7 +779,41 @@ class RoundController {
 }
 exports.RoundController = RoundController;
 
-},{"../Interop/Interop":10,"../Shared/EventHandlerUtils":15,"../Shared/Utils":16,"./DialogController/InfoDialogController":4,"./Utils":9}],9:[function(require,module,exports){
+},{"../Interop/Interop":11,"../Shared/EventHandlerUtils":16,"../Shared/Utils":17,"./DialogController/InfoDialogController":4,"./ScoreboardController/ScoreBoardController":9,"./Utils":10}],9:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ScoreboardController = void 0;
+const GameState_1 = require("../../App/GameState");
+const Constants_1 = require("../../Shared/Constants");
+class ScoreboardController {
+    constructor() {
+        this.getScoreBoardListElement = (playerController) => {
+            const listElement = document.createElement("div");
+            listElement.innerText = `${playerController.getUserName()} : ${playerController.getScore()}`;
+            return listElement;
+        };
+        this.scoreBoardDiv = document.getElementById(Constants_1.HTMLElementIds.scoreBoard);
+        this.scoreBoardListElement = undefined;
+    }
+    updateScoreBoard() {
+        this.scoreBoardDiv.style.display = "block";
+        if (this.scoreBoardListElement) {
+            this.scoreBoardDiv.removeChild(this.scoreBoardListElement);
+        }
+        this.scoreBoardListElement = document.createElement("div");
+        this.scoreBoardListElement.className = Constants_1.HTMLElementIds.scoreBoardList;
+        GameState_1.GameState.getInstance()
+            .getPlayerControllersList()
+            .forEach((playerController) => {
+            var _a;
+            (_a = this.scoreBoardListElement) === null || _a === void 0 ? void 0 : _a.appendChild(this.getScoreBoardListElement(playerController));
+        });
+        this.scoreBoardDiv.appendChild(this.scoreBoardListElement);
+    }
+}
+exports.ScoreboardController = ScoreboardController;
+
+},{"../../App/GameState":3,"../../Shared/Constants":15}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RenderUtils = exports.GenericUtils = exports.MathUtils = void 0;
@@ -766,13 +849,15 @@ var MathUtils;
 var GenericUtils;
 (function (GenericUtils) {
     /**
-     * returns 3 random distinct characters
+     * returns 5 random distinct characters
      */
-    GenericUtils.getRandomChars = () => {
+    GenericUtils.getRandomChars = (excludeList) => {
         const randomChars = new Set();
-        while (randomChars.size < 3) {
+        while (randomChars.size < 5) {
             const randomChar = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
-            randomChars.add(randomChar);
+            if (!excludeList.includes(randomChar)) {
+                randomChars.add(randomChar);
+            }
         }
         return [...randomChars];
     };
@@ -788,7 +873,7 @@ var RenderUtils;
     };
 })(RenderUtils || (exports.RenderUtils = RenderUtils = {}));
 
-},{"../App/GameState":3,"../Shared/Constants":14}],10:[function(require,module,exports){
+},{"../App/GameState":3,"../Shared/Constants":15}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.interop = void 0;
@@ -804,7 +889,7 @@ var interop;
     })(MessageType = interop.MessageType || (interop.MessageType = {}));
 })(interop || (exports.interop = interop = {}));
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RTCManager = void 0;
@@ -844,12 +929,13 @@ class RTCManager {
                 }));
             });
         };
-        this.sendWord = (word, userName) => {
+        this.sendWord = (word, score, userName) => {
             this.isSocketOpen().then(() => {
                 this.webSocketConnection.send(JSON.stringify({
                     messageType: Interop_1.interop.MessageType.WORD,
                     word,
                     userName,
+                    score,
                 }));
             });
         };
@@ -878,13 +964,14 @@ class RTCManager {
             (_a = this.rtcEventSubscribers
                 .get(message.messageType)) === null || _a === void 0 ? void 0 : _a.forEach((subscriber) => subscriber.handleRTCMessage(message));
         };
+        // [word, score]
         this.waitForNextWordMessage = () => {
             return new Promise((resolve) => {
                 const eventListener = (event) => {
                     const message = JSON.parse(event.data);
                     if (message.messageType === Interop_1.interop.MessageType.WORD) {
                         this.webSocketConnection.removeEventListener("message", eventListener);
-                        resolve(message.word);
+                        resolve([message.word, message.score]);
                     }
                 };
                 this.webSocketConnection.addEventListener("message", eventListener);
@@ -929,7 +1016,7 @@ class RTCManager {
 }
 exports.RTCManager = RTCManager;
 
-},{"../Interop/Interop":10,"../Shared/Constants":14}],12:[function(require,module,exports){
+},{"../Interop/Interop":11,"../Shared/Constants":15}],13:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1000,7 +1087,7 @@ class GameRenderer {
 }
 exports.GameRenderer = GameRenderer;
 
-},{"../App/GameState":3,"../Shared/Constants":14,"./utils":13}],13:[function(require,module,exports){
+},{"../App/GameState":3,"../Shared/Constants":15,"./utils":14}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addWindowResizeHandler = void 0;
@@ -1014,11 +1101,11 @@ const addWindowResizeHandler = (callbackFn) => {
 };
 exports.addWindowResizeHandler = addWindowResizeHandler;
 
-},{"../Shared/EventHandlerUtils":15}],14:[function(require,module,exports){
+},{"../Shared/EventHandlerUtils":16}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ratios = exports.HTMLElementIds = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
-exports.GAME_SERVER_URL = "http://48.217.80.100:3000";
+exports.GAME_SERVER_URL = "http://192.168.1.3:3000";
 exports.WORD_ENTRY_TIME = 30;
 var HTMLElementIds;
 (function (HTMLElementIds) {
@@ -1052,13 +1139,16 @@ var HTMLElementIds;
     HTMLElementIds["startGameButton"] = "start-game-button";
     HTMLElementIds["roomCodeSpan"] = "room-code-span";
     HTMLElementIds["playerList"] = "player-list";
+    // score board
+    HTMLElementIds["scoreBoard"] = "score-board";
+    HTMLElementIds["scoreBoardList"] = "score-board-list";
 })(HTMLElementIds || (exports.HTMLElementIds = HTMLElementIds = {}));
 exports.Ratios = {
     windowToCanvas: 0.9,
     canvasToCircle: 0.7,
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventHandlerUtils = void 0;
@@ -1084,7 +1174,7 @@ class EventHandlerUtils {
 }
 exports.EventHandlerUtils = EventHandlerUtils;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContainerUtils = void 0;
@@ -1095,7 +1185,7 @@ var ContainerUtils;
     };
 })(ContainerUtils || (exports.ContainerUtils = ContainerUtils = {}));
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const App_1 = require("./App/App");
@@ -1104,4 +1194,4 @@ EventHandlerUtils_1.EventHandlerUtils.getInstance();
 App_1.App.MainMenu();
 // App.init()
 
-},{"./App/App":2,"./Shared/EventHandlerUtils":15}]},{},[17]);
+},{"./App/App":2,"./Shared/EventHandlerUtils":16}]},{},[18]);

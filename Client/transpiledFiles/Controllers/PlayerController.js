@@ -63,14 +63,17 @@ class PlayerController {
             if (this.isLocalPlayer) {
                 return new Promise((resolve, _reject) => {
                     const dialogController = new InputDialogController_1.InputDialogController(previousWord);
-                    dialogController.setOnSubmitCallback((text) => resolve(text));
+                    dialogController.setOnSubmitCallback((text, score) => {
+                        resolve(text);
+                        this.score += score;
+                    });
                 });
             }
             return new Promise((resolve) => {
                 let infoDialog = null;
                 if (!previousWord) {
                     if (lastDeadPlayerName) {
-                        infoDialog = new InfoDialogController_1.InfoDialogController(`${lastDeadPlayerName} killed himself \u{1F602}. Waiting for ${this.username} to enter the word`);
+                        infoDialog = new InfoDialogController_1.InfoDialogController(`${lastDeadPlayerName} killed themselves \u{1F602}. Waiting for ${this.username} to enter the word`);
                     }
                     else {
                         infoDialog = new InfoDialogController_1.InfoDialogController(`Waiting for ${this.username} to enter the word`);
@@ -86,8 +89,9 @@ class PlayerController {
                 }
                 RTCManager_1.RTCManager.getInstance()
                     .waitForNextWordMessage()
-                    .then((word) => {
+                    .then(([word, score]) => {
                     resolve(word);
+                    this.score += score;
                     infoDialog === null || infoDialog === void 0 ? void 0 : infoDialog.dispose();
                 });
             });
@@ -98,6 +102,7 @@ class PlayerController {
         this.highlightType = Highlight.None;
         this.username = "";
         this.angle = 0;
+        this.score = 0;
     }
     // position self
     set position(newCoordinates) {
@@ -112,6 +117,9 @@ class PlayerController {
     }
     getUserName() {
         return this.username;
+    }
+    getScore() {
+        return this.score;
     }
     kill() {
         this.isAlive = false;

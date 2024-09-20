@@ -18,6 +18,8 @@ export class PlayerController implements IDrawable {
     private username: string;
     private angle: number;
 
+    private score: number;
+
     constructor() {
         this.coordinates = { x: 0, y: 0 };
         this.isAlive = true;
@@ -25,6 +27,7 @@ export class PlayerController implements IDrawable {
         this.highlightType = Highlight.None;
         this.username = "";
         this.angle = 0;
+        this.score = 0;
     }
     // position self
     public set position(newCoordinates: Point) {
@@ -43,6 +46,7 @@ export class PlayerController implements IDrawable {
     public get isLocal() {
         return this.isLocalPlayer;
     }
+
     // turn->takeInput
     // highlight
     public highlight = () => {
@@ -99,11 +103,18 @@ export class PlayerController implements IDrawable {
         return this.username;
     }
 
+    public getScore(): number {
+        return this.score;
+    }
+
     public getPlayerInput = (previousWord: string, lastDeadPlayerName: string): Promise<string> => {
         if (this.isLocalPlayer) {
             return new Promise((resolve, _reject) => {
                 const dialogController = new InputDialogController(previousWord);
-                dialogController.setOnSubmitCallback((text: string) => resolve(text));
+                dialogController.setOnSubmitCallback((text: string, score: number) => {
+                    resolve(text);
+                    this.score += score;
+                });
             });
         }
         return new Promise((resolve) => {
@@ -112,7 +123,7 @@ export class PlayerController implements IDrawable {
             if (!previousWord) {
                 if (lastDeadPlayerName) {
                     infoDialog = new InfoDialogController(
-                        `${lastDeadPlayerName} killed himself \u{1F602}. Waiting for ${this.username} to enter the word`
+                        `${lastDeadPlayerName} killed themselves \u{1F602}. Waiting for ${this.username} to enter the word`
                     );
                 } else {
                     infoDialog = new InfoDialogController(
@@ -133,8 +144,9 @@ export class PlayerController implements IDrawable {
 
             RTCManager.getInstance()
                 .waitForNextWordMessage()
-                .then((word) => {
+                .then(([word, score]) => {
                     resolve(word);
+                    this.score += score;
                     infoDialog?.dispose();
                 });
         });

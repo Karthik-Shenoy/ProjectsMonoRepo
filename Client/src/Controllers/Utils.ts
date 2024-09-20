@@ -35,15 +35,17 @@ export namespace MathUtils {
 
 export namespace GenericUtils {
     /**
-     * returns 3 random distinct characters
+     * returns 5 random distinct characters
      */
-    export const getRandomChars = (): [string, string, string] => {
+    export const getRandomChars = (excludeList: string[]): string[] => {
         const randomChars = new Set<string>();
-        while (randomChars.size < 3) {
+        while (randomChars.size < 5) {
             const randomChar = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
-            randomChars.add(randomChar);
+            if (!excludeList.includes(randomChar)) {
+                randomChars.add(randomChar);
+            }
         }
-        return [...randomChars] as [string, string, string];
+        return [...randomChars];
     };
 }
 

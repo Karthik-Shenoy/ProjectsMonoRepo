@@ -37,12 +37,13 @@ class RTCManager {
                 }));
             });
         };
-        this.sendWord = (word, userName) => {
+        this.sendWord = (word, score, userName) => {
             this.isSocketOpen().then(() => {
                 this.webSocketConnection.send(JSON.stringify({
                     messageType: Interop_1.interop.MessageType.WORD,
                     word,
                     userName,
+                    score,
                 }));
             });
         };
@@ -71,13 +72,14 @@ class RTCManager {
             (_a = this.rtcEventSubscribers
                 .get(message.messageType)) === null || _a === void 0 ? void 0 : _a.forEach((subscriber) => subscriber.handleRTCMessage(message));
         };
+        // [word, score]
         this.waitForNextWordMessage = () => {
             return new Promise((resolve) => {
                 const eventListener = (event) => {
                     const message = JSON.parse(event.data);
                     if (message.messageType === Interop_1.interop.MessageType.WORD) {
                         this.webSocketConnection.removeEventListener("message", eventListener);
-                        resolve(message.word);
+                        resolve([message.word, message.score]);
                     }
                 };
                 this.webSocketConnection.addEventListener("message", eventListener);

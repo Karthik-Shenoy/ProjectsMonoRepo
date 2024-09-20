@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ratios = exports.HTMLElementIds = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
-exports.GAME_SERVER_URL = "http://48.217.80.100:3000";
+exports.GAME_SERVER_URL = "http://192.168.1.3:3000";
 exports.WORD_ENTRY_TIME = 30;
 var HTMLElementIds;
 (function (HTMLElementIds) {
@@ -35,6 +35,9 @@ var HTMLElementIds;
     HTMLElementIds["startGameButton"] = "start-game-button";
     HTMLElementIds["roomCodeSpan"] = "room-code-span";
     HTMLElementIds["playerList"] = "player-list";
+    // score board
+    HTMLElementIds["scoreBoard"] = "score-board";
+    HTMLElementIds["scoreBoardList"] = "score-board-list";
 })(HTMLElementIds || (exports.HTMLElementIds = HTMLElementIds = {}));
 exports.Ratios = {
     windowToCanvas: 0.9,
