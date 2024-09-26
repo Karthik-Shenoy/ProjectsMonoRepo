@@ -16,7 +16,6 @@ const Utils_2 = require("../Shared/Utils");
 const Interop_1 = require("../Interop/Interop");
 const InfoDialogController_1 = require("./DialogController/InfoDialogController");
 const ScoreBoardController_1 = require("./ScoreboardController/ScoreBoardController");
-const Constants_1 = require("../Shared/Constants");
 /**
  * Singleton Controller to control the rounds
  */
@@ -119,7 +118,7 @@ class RoundController {
         this.gameTimerExpired = false;
         setTimeout(() => {
             this.gameTimerExpired = true;
-        }, Constants_1.TOTAL_GAME_TIME);
+        }, 300 * 1000);
     }
     addPlayer(playerController) {
         this.playersList.push(playerController);

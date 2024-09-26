@@ -20,6 +20,7 @@ type RTCMessageWordMessage struct {
 	MessageType MessageType `json:"messageType"`
 	Word        string      `json:"word"`
 	UserName    string      `json:"userName"`
+	Score       int         `json:"score"`
 }
 
 type RTCDeathMessage struct {

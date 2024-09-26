@@ -9,7 +9,6 @@ import { interop } from "../Interop/Interop";
 import { RTCManager } from "../RTC/RTCManager";
 import { InfoDialogController } from "./DialogController/InfoDialogController";
 import { ScoreboardController } from "./ScoreboardController/ScoreBoardController";
-import { TOTAL_GAME_TIME } from "../Shared/Constants";
 
 /**
  * Singleton Controller to control the rounds
@@ -33,7 +32,7 @@ export class RoundController implements RTCMessageSubscriber {
         this.gameTimerExpired = false;
         setTimeout(() => {
             this.gameTimerExpired = true;
-        }, TOTAL_GAME_TIME);
+        }, 300 * 1000);
     }
 
     public addPlayer(playerController: PlayerController) {
@@ -64,8 +63,6 @@ export class RoundController implements RTCMessageSubscriber {
                 
             return;
         }
-
-        this.scoreBoardController.updateScoreBoard();
 
         this.positionPlayers();
         this.playersList[this.currentPlayerIndex].highlightTurn();
@@ -98,6 +95,7 @@ export class RoundController implements RTCMessageSubscriber {
         } else {
             this.setCurrPlayerIndex(newPlayerIndex);
         }
+        this.scoreBoardController.updateScoreBoard();
         setTimeout(this.startRound, 0);
     };
 

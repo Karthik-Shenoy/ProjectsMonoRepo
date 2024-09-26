@@ -648,7 +648,6 @@ const Utils_2 = require("../Shared/Utils");
 const Interop_1 = require("../Interop/Interop");
 const InfoDialogController_1 = require("./DialogController/InfoDialogController");
 const ScoreBoardController_1 = require("./ScoreboardController/ScoreBoardController");
-const Constants_1 = require("../Shared/Constants");
 /**
  * Singleton Controller to control the rounds
  */
@@ -751,7 +750,7 @@ class RoundController {
         this.gameTimerExpired = false;
         setTimeout(() => {
             this.gameTimerExpired = true;
-        }, Constants_1.TOTAL_GAME_TIME);
+        }, 300 * 1000);
     }
     addPlayer(playerController) {
         this.playersList.push(playerController);
@@ -780,7 +779,7 @@ class RoundController {
 }
 exports.RoundController = RoundController;
 
-},{"../Interop/Interop":11,"../Shared/Constants":15,"../Shared/EventHandlerUtils":16,"../Shared/Utils":17,"./DialogController/InfoDialogController":4,"./ScoreboardController/ScoreBoardController":9,"./Utils":10}],9:[function(require,module,exports){
+},{"../Interop/Interop":11,"../Shared/EventHandlerUtils":16,"../Shared/Utils":17,"./DialogController/InfoDialogController":4,"./ScoreboardController/ScoreBoardController":9,"./Utils":10}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScoreboardController = void 0;
@@ -1105,10 +1104,9 @@ exports.addWindowResizeHandler = addWindowResizeHandler;
 },{"../Shared/EventHandlerUtils":16}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Ratios = exports.HTMLElementIds = exports.TOTAL_GAME_TIME = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
-exports.GAME_SERVER_URL = "http://48.217.80.100:3000";
+exports.Ratios = exports.HTMLElementIds = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
+exports.GAME_SERVER_URL = "http://192.168.1.3:3000";
 exports.WORD_ENTRY_TIME = 30;
-exports.TOTAL_GAME_TIME = 7 * 60 * 1000; // 7 minutes
 var HTMLElementIds;
 (function (HTMLElementIds) {
     HTMLElementIds["gameCanvas"] = "game-canvas";
