@@ -187,7 +187,7 @@ class GameState {
         this.localPlayerController = null;
         RTCManager_1.RTCManager.getInstance().addRTCMessageSubscriber(Interop_1.interop.MessageType.GAME_START_BROADCAST, this);
         this.bgmMusicAudio = document.createElement("audio");
-        this.bgmMusicAudio.src = "/dist/public/audio/bgm.mp3";
+        this.bgmMusicAudio.src = "/public/audio/bgm.mp3";
         this.bgmMusicAudio.loop = true;
         this.bgmMusicAudio.volume = 1;
         document.body.appendChild(this.bgmMusicAudio);

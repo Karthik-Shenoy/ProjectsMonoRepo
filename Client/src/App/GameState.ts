@@ -99,7 +99,7 @@ export class GameState implements RTCMessageSubscriber {
         );
 
         this.bgmMusicAudio = document.createElement("audio");
-        this.bgmMusicAudio.src = "/dist/public/audio/bgm.mp3"
+        this.bgmMusicAudio.src = "/public/audio/bgm.mp3"
         this.bgmMusicAudio.loop = true;
         this.bgmMusicAudio.volume = 1
 
