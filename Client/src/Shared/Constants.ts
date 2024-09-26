@@ -2,6 +2,8 @@ export const GAME_SERVER_URL = "http://48.217.80.100:3000";
 
 export const WORD_ENTRY_TIME = 30;
 
+export const TOTAL_GAME_TIME = 7 * 60 * 1000; // 7 minutes
+
 export enum HTMLElementIds {
     gameCanvas = "game-canvas",
     dialog = "dialog",
