@@ -667,7 +667,6 @@ class RoundController {
                 }
                 return;
             }
-            this.scoreBoardController.updateScoreBoard();
             this.positionPlayers();
             this.playersList[this.currentPlayerIndex].highlightTurn();
             const inputText = yield this.getInput(this.previousWord, this.lastDeadPlayerName);
@@ -686,6 +685,7 @@ class RoundController {
             else {
                 this.setCurrPlayerIndex(newPlayerIndex);
             }
+            this.scoreBoardController.updateScoreBoard();
             setTimeout(this.startRound, 0);
         });
         // has possibility of causing deadlock if used in game state
@@ -1105,7 +1105,7 @@ exports.addWindowResizeHandler = addWindowResizeHandler;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ratios = exports.HTMLElementIds = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
-exports.GAME_SERVER_URL = "http://192.168.1.3:3000";
+exports.GAME_SERVER_URL = "http://48.217.80.100.:3000";
 exports.WORD_ENTRY_TIME = 30;
 var HTMLElementIds;
 (function (HTMLElementIds) {

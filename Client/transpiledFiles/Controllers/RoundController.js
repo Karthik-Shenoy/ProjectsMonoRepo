@@ -35,7 +35,6 @@ class RoundController {
                 }
                 return;
             }
-            this.scoreBoardController.updateScoreBoard();
             this.positionPlayers();
             this.playersList[this.currentPlayerIndex].highlightTurn();
             const inputText = yield this.getInput(this.previousWord, this.lastDeadPlayerName);
@@ -54,6 +53,7 @@ class RoundController {
             else {
                 this.setCurrPlayerIndex(newPlayerIndex);
             }
+            this.scoreBoardController.updateScoreBoard();
             setTimeout(this.startRound, 0);
         });
         // has possibility of causing deadlock if used in game state
