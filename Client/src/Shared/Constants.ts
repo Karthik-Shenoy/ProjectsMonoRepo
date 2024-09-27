@@ -1,4 +1,4 @@
-export const GAME_SERVER_URL = "https://48.217.80.100/word-roulette-service";
+export const GAME_SERVER_URL = "https://karthik.shenoyk.com/word-roulette-service";
 
 export const WORD_ENTRY_TIME = 30;
 

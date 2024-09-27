@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ratios = exports.HTMLElementIds = exports.WORD_ENTRY_TIME = exports.GAME_SERVER_URL = void 0;
-exports.GAME_SERVER_URL = "https://48.217.80.100/word-roulette-service";
+exports.GAME_SERVER_URL = "https://karthik.shenoyk.com/word-roulette-service";
 exports.WORD_ENTRY_TIME = 30;
 var HTMLElementIds;
 (function (HTMLElementIds) {
