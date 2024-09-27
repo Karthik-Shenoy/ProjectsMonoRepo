@@ -1,11 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"word-roulette/api"
+	"word-roulette/log_utils"
 	"word-roulette/rtc"
 )
+
+func init() {
+	var DEBUG bool
+	flag.BoolVar(&DEBUG, "debug", false, "Enable debug mode")
+	log_utils.SetDebug(DEBUG)
+}
 
 func main() {
 	rtcManager := rtc.GetRTCManagerInstance()

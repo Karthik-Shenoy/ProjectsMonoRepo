@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"word-roulette/interop"
+	"word-roulette/log_utils"
 )
 
 const (
@@ -74,6 +75,8 @@ func (ws *WordStore) IsWordPresent(word string) bool {
 		var mid int = (L + R) / 2
 		var currWord string = ws.words[mid]
 		var cmpSGN = stringCmp(word, currWord)
+
+		log_utils.DEBUG_PRINT(fmt.Sprintf("Comparing %s with %s: %d", word, currWord, cmpSGN))
 
 		if cmpSGN == SGN_EQ {
 			return true
