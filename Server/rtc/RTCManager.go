@@ -113,8 +113,8 @@ func (rtcMgr *RTCManager) connectionMappingHandler(conn *websocket.Conn, notifie
 			return
 		}
 
-		// map connection
-		err = rtcMgr.roomMgr.MapConnection(initMsg.RoomId, initMsg.UserName, conn)
+		// map connection to user
+		err = rtcMgr.roomMgr.MapConnectionToUser(initMsg.RoomId, initMsg.UserName, conn)
 
 		if err != nil {
 			fmt.Println("RTCManager.ConnectionMappingHandler: ", err)

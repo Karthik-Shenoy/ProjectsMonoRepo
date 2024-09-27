@@ -10,6 +10,10 @@ const (
 	MESSAGE_TYPE_GAME_START_BROADCAST
 )
 
+type RTCMessageDiscriminator struct {
+	MessageType MessageType `json:"messageType"`
+}
+
 type RTCMessageInit struct {
 	MessageType MessageType `json:"messageType"`
 	UserName    string      `json:"userName"`
@@ -35,8 +39,4 @@ type RTCGameStartMessage struct {
 type RTCGameStartBroadcastMessage struct {
 	MessageType MessageType    `json:"messageType"`
 	PositionMap map[string]int `json:"positionMap"`
-}
-
-type RTCMessageDiscriminator struct {
-	MessageType MessageType `json:"messageType"`
 }

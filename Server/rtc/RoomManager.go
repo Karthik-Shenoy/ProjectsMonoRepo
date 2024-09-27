@@ -59,7 +59,7 @@ func (mgr *RoomManager) GetUsersInRoom(roomId string) ([]*Client, error) {
 	return userList, nil
 }
 
-func (mgr *RoomManager) MapConnection(roomId, username string, conn *websocket.Conn) error {
+func (mgr *RoomManager) MapConnectionToUser(roomId, username string, conn *websocket.Conn) error {
 	userList, ok := mgr.roomUsersMap[roomId]
 	if !ok {
 		return errors.New("RTCManager.MapConnection: room does not exist")
