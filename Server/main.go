@@ -14,8 +14,8 @@ func main() {
 	http.HandleFunc("/isWordValid", CorsHandlerMiddleWare(api.HandleIsValidRequest, http.MethodPost))
 	http.HandleFunc("/rtc", CorsHandlerMiddleWare(rtcManager.UpgradeConnectionHandler, http.MethodGet))
 
-	fmt.Println("Server running at http://127.0.0.1:3000")
-	http.ListenAndServe(":3000", nil)
+	fmt.Println("Server running at http://127.0.0.1:3001")
+	http.ListenAndServe(":3001", nil)
 }
 
 func CorsHandlerMiddleWare(handler http.HandlerFunc, method string) http.HandlerFunc {
