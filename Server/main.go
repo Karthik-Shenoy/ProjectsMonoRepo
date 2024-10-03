@@ -12,6 +12,7 @@ import (
 func init() {
 	var DEBUG bool
 	flag.BoolVar(&DEBUG, "debug", false, "Enable debug mode")
+	flag.Parse()
 	log_utils.SetDebug(DEBUG)
 }
 

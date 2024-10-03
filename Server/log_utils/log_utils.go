@@ -6,6 +6,7 @@ var debug bool
 
 // SetDebug sets the debug flag
 func SetDebug(d bool) {
+	fmt.Println("Starting in debug mode")
 	debug = d
 }
 
