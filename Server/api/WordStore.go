@@ -51,9 +51,10 @@ func (ws *WordStore) loadWords() {
 	var word string = ""
 	for _, currByte := range fileBytes {
 		if currByte == byte('\n') {
-			wordBytes := []byte(word)
-			// remove carriage return '\r'
-			formattedWord := string(wordBytes[:len(wordBytes)-1])
+			formattedWord := word
+			if len(word) > 0 && word[len(word)-1] == '\r' {
+				formattedWord = word[:len(word)-1]
+			}
 			ws.words = append(ws.words, formattedWord)
 			word = ""
 			continue
