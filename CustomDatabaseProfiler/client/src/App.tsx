@@ -9,7 +9,7 @@ function App() {
         <AppThemeProvider defaultTheme="system">
             <AppContextProvider>
                 <div className="flex min-h-screen font-mono  max-w-[100vw] flex-row bg-background justify-center items-center">
-                    <BrowserRouter>
+                    <BrowserRouter basename="/demo/db-profiler">
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/db" element={<DatabasePage />} />
