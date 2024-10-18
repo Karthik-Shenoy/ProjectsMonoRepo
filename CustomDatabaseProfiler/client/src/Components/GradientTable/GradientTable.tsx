@@ -10,7 +10,7 @@ import {
 import * as React from "react";
 import { GradientBorderWrapper } from "../GradientBorderWrapper/GradientBorderWrapper";
 import { TableSkeleton } from "./Components/TableSkeleton";
-import { DatabaseRecord } from "src/Interop/DatabaseResponse.types";
+import { DatabaseRecord } from "../../Interop/DatabaseResponse.types";
 import { TableStatusIllustration } from "./Components/TableStatusIllustration";
 
 export type TableState = "loading" | "success" | "error";
