@@ -42,7 +42,7 @@ func (mgr *ClientManager) AddClient(clientId string) {
 	defer logFile.Close()
 
 	// spawn the database in the given folder
-	cmd := exec.Command("../../db/database.exe", strconv.Itoa(int(mgr.portCounter)))
+	cmd := exec.Command("../../db/database", strconv.Itoa(int(mgr.portCounter)))
 	cmd.Dir = client.FolderPath
 	cmd.Stdout = logFile
 	cmd.Stderr = logFile
