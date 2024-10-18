@@ -15,6 +15,6 @@ func main() {
 	udpClient := udp.GetUdpClientInstance()
 	udpClient.StartListening()
 
-	fmt.Println("server running at 127.0.0.1:3000")
-	http.ListenAndServe("127.0.0.1:3000", nil)
+	fmt.Println("server running at 127.0.0.1:3002")
+	http.ListenAndServe("127.0.0.1:3002", nil)
 }
