@@ -2,7 +2,11 @@ import { QueryProfile } from "../../Components/SidePane/Components/LineChart/Gra
 
 export type AppContextData = {
     queyProfiles: QueryProfile[];
+    clientId?: string;
+    storageEngine?: string;
     setQueryProfiles: (queryProfiles: QueryProfile[]) => void;
+    setClientId: (clientId: string) => void;
+    setStorageEngine: (engine: string) => void;
 };
 
 export type ContextProviderProps = React.PropsWithChildren<{

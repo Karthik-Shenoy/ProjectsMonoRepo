@@ -9,7 +9,9 @@ import {
     DatabaseResponse,
     DatabaseRecord,
     QueryResponse,
+    QueryMessage,
 } from "../../Interop/DatabaseResponse.types";
+import { serverUri } from "../../SharedConstants";
 
 export const MainArea: React.FC = ({}) => {
     const [tableState, setTableState] = React.useState<TableState>("loading");
@@ -19,14 +21,19 @@ export const MainArea: React.FC = ({}) => {
     const appContextData = useAppContext();
 
     const onClick = () => {
+        console.log("cookie:", document.cookie);
         setTableState("loading");
         if (queryInput.current) {
-            fetch("http://localhost:3000/query", {
+            fetch(`${serverUri}/query`, {
                 method: "POST",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ query: queryInput.current.value }),
+                body: JSON.stringify({
+                    query: queryInput.current.value,
+                    clientId: appContextData.clientId,
+                } as QueryMessage),
             })
                 .then((res) => {
                     return res.json() as Promise<DatabaseResponse>;
@@ -38,7 +45,9 @@ export const MainArea: React.FC = ({}) => {
 
                     const queryResponse = JSON.parse(data.queryResponse) as QueryResponse;
                     if (queryResponse.successful === true) {
-                        setQueryResponse(() => queryResponse.record ? [queryResponse.record] : []);
+                        setQueryResponse(() =>
+                            queryResponse.record ? [queryResponse.record] : []
+                        );
                         setTableState("success");
                     }
 

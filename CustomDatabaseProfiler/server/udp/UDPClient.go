@@ -42,7 +42,7 @@ func (client *UDPClient) StartListening() {
 	}()
 }
 
-func (client *UDPClient) SendRequest(buf []byte, correlationId uint32) {
+func (client *UDPClient) SendRequest(buf []byte, correlationId uint32, port uint16) {
 	udpMessage := interop.UdpMessage{
 		CorrelationId: correlationId,
 		Payload:       base64.StdEncoding.EncodeToString(buf),

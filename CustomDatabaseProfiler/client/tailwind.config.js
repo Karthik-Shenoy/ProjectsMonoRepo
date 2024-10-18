@@ -3,10 +3,10 @@ export default {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx}", "@shadcn-ui/components/ui/**/*.tsx"],
     theme: {
-        screens:{
+        screens: {
             desktop: "1280px",
             tablet: "768px",
-            mobile: "640px"
+            mobile: "640px",
         },
         extend: {
             borderRadius: {
@@ -55,6 +55,9 @@ export default {
                     4: "hsl(var(--chart-4))",
                     5: "hsl(var(--chart-5))",
                 },
+            },
+            animation: {
+                "spin-slow": "spin 2s linear infinite",
             },
         },
     },

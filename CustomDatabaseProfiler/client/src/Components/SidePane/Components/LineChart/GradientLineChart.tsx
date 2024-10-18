@@ -1,5 +1,3 @@
-"use client";
-
 import { TrendingUp } from "lucide-react";
 import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts";
 
@@ -20,8 +18,6 @@ import React from "react";
 import { gradientBorderTailwindClass } from "../../../../SharedConstants";
 import { useAppContext } from "../../../../Contexts/AppContext/AppContext";
 
-export const description = "A line chart with a label";
-
 const chartConfig = {
     desktop: {
         label: "Desktop",
@@ -33,7 +29,7 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export const GradientLineChart: React.FC<{}> = () => {
+const GradientLineChart: React.FC<{}> = () => {
     const appContextData = useAppContext();
 
     const chartData = appContextData.queyProfiles.map((profile, index) => ({
@@ -44,7 +40,9 @@ export const GradientLineChart: React.FC<{}> = () => {
     const sumExecutionTime = appContextData.queyProfiles.reduce((prev, current) => {
         return prev + current.queryParseTime + current.queryExecutionTime;
     }, 0);
-    const averageExecutionTime = `${sumExecutionTime / (appContextData.queyProfiles.length || 1)} \u00B5s`;
+    const averageExecutionTime = `${
+        sumExecutionTime / (appContextData.queyProfiles.length || 1)
+    } \u00B5s`;
 
     return (
         <div className={gradientBorderTailwindClass}>
@@ -107,3 +105,5 @@ export const GradientLineChart: React.FC<{}> = () => {
         </div>
     );
 };
+
+export default GradientLineChart;

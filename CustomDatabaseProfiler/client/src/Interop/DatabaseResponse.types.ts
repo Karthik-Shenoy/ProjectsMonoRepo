@@ -7,6 +7,11 @@ export type DatabaseResponse = {
     queryResponse: string;
 };
 
+export type QueryMessage = {
+    query: string,
+    clientId: string
+}
+
 export type QueryResponse = {
     successful: boolean;
     record?: {
@@ -19,3 +24,7 @@ export type DatabaseRecord = {
     key: string;
     value: string;
 };
+
+export type HeartbeatMessage = {
+    clientId: string;
+}

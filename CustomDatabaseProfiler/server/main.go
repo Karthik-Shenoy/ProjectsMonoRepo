@@ -9,7 +9,8 @@ import (
 
 func main() {
 
-	http.Handle("/query", api.CorsMiddleWare(api.HandleQuery, http.MethodPost))
+	http.Handle("/query", api.ChainCorsAndAuthMiddleWare(api.HandleQuery, http.MethodPost))
+	http.Handle("/register", api.CorsMiddleWare(api.RegisterClientHandler, http.MethodPost))
 
 	udpClient := udp.GetUdpClientInstance()
 	udpClient.StartListening()
