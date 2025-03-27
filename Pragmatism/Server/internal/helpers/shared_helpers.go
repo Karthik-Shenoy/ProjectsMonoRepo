@@ -42,26 +42,22 @@ func GetCurrentUnixTime() int64 {
 
 func AsyncReadStream(r *io.ReadCloser, ch chan<- *AsyncReadStreamResult) {
 	defer close(ch)
-	result := ""
-	for {
-		buf := make([]byte, 1024)
-		n, err := (*r).Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			ch <- &AsyncReadStreamResult{
-				Result: "",
-				Err:    err,
-			}
-			return
+	p, err := io.ReadAll(*r)
+
+	if err != nil {
+		ch <- &AsyncReadStreamResult{
+			Result: "",
+			Err: apperrors.NewAppError(
+				apperrors.SharedHelpers_Retryable_RunCommandFailed,
+				getServiceErrorOrigin("AsyncReadStream"),
+				"failed to read stream, msg"+err.Error(),
+			).Err(),
 		}
-		if n > 0 {
-			result += string(buf[:n])
-		}
+		return
 	}
+
 	ch <- &AsyncReadStreamResult{
-		Result: result,
+		Result: string(p),
 		Err:    nil,
 	}
 }
