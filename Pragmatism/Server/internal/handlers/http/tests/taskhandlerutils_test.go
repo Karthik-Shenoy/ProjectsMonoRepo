@@ -8,20 +8,20 @@ import (
 
 func TestGetTaskResultFromTestResult(t *testing.T) {
 	// Arrange
-	jestTestResult := "❯ tests/loadbalancer.test.ts (3 tests | 3 failed) 13ms\n\t  × Task-Tests:LBLB > should forward the request to a backend service 9ms\n\t→ expected \"spy\" to be called with arguments: [ Array(2) ]\nReceived:\n\tNumber of calls: 0\n\t\t × Task-Tests:LBLB > should handle errors from backend services 1ms\n\t→ expected \"spy\" to be called with arguments: [ Error: Backend error ]\nReceived:\n\tNumber of calls: 0\n\n\t× Task-Tests:LBLB > should consistently map the requests to the same servers for cache affinity 1ms\n\t→ expected \"spy\" to be called 10 times, but got 0 times"
+	jestTestResult := " FAIL  tests/loadbalancer.test.ts > Task-Tests:LBLB > should forward the request to a backend service\n\t\n\tAssertionError: expected \"spy\" to be called with arguments: [ Array(2) ]Received:\nNumber of calls: 0\n\t❯ tests/loadbalancer.test.ts:52:45\n50|         await loadbalancer.onRequest(request, mockResponseWriter);\n\t FAIL  tests/loadbalancer.test.ts > Task-Tests:LBLB > should handle errors from backend services\n\tAssertionError: expected \"spy\" to be called with arguments: [ Error: Backend error ]\nceived:\n\tNumber of calls: 0\n \tFAIL  tests/loadbalancer.test.ts > Task-Tests:LBLB > should consistently map the requests to the same servers for cache affinity\nAssertionError: expected \"spy\" to be called 10 times, but got 0 times"
 	expected := []*api.TestResult{
 		{
 			IsSuccessful: false,
-			TestName:     "should forward the request to a backend service 9ms",
+			TestName:     "should forward the request to a backend service",
 		},
 
 		{
 			IsSuccessful: false,
-			TestName:     "should handle errors from backend services 1ms",
+			TestName:     "should handle errors from backend services",
 		},
 		{
 			IsSuccessful: false,
-			TestName:     "should consistently map the requests to the same servers for cache affinity 1ms",
+			TestName:     "should consistently map the requests to the same servers for cache affinity",
 		},
 	}
 
