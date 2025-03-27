@@ -46,6 +46,11 @@ func AsyncReadStream(r *io.ReadCloser, ch chan<- *AsyncReadStreamResult) {
 	for {
 		buf := make([]byte, 1024)
 		n, err := (*r).Read(buf)
+
+		if n > 0 {
+			result += string(buf[:n])
+		}
+
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -56,9 +61,7 @@ func AsyncReadStream(r *io.ReadCloser, ch chan<- *AsyncReadStreamResult) {
 			}
 			return
 		}
-		if n > 0 {
-			result += string(buf[:n])
-		}
+
 	}
 	ch <- &AsyncReadStreamResult{
 		Result: result,
