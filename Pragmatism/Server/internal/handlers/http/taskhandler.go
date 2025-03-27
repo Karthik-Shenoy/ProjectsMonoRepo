@@ -175,6 +175,7 @@ func handleSubmitTask(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	fmt.Println("Trace: task results", *(notif.Result))
 	taskResult := GetTaskResultFromTestResult(*(notif.Result))
 
 	payload, err := json.Marshal(api.TaskSubmitResponse{
