@@ -19,9 +19,9 @@ export type MonacoEditorWrapperProps = {
 export const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({ extraLibContent, value, ref, onMount, onChange, language, theme, className }) => {
     const monaco = useMonaco()
     const editorDivRef = React.useRef<HTMLDivElement>(null)
-    let editorRefHandle: MonacoCodeEditor | undefined = undefined;
+    let [editorInstance, setEditorInstance] = React.useState<MonacoCodeEditor | undefined>(undefined)
 
-    React.useImperativeHandle(ref, () => editorRefHandle)
+    React.useImperativeHandle(ref, () => editorInstance)
 
     React.useEffect(() => {
         if (!editorDivRef.current || !monaco) {
@@ -66,13 +66,10 @@ export const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({ extraL
 
         resizeObserver.observe(editorDivRef.current)
 
-        editorRefHandle = {
-            getValue: () => editor.getValue()
-        }
-
-        onMount?.(editorRefHandle)
-
-
+        setEditorInstance(() => {
+            onMount?.(editor)
+            return editor
+        });
 
         return () => {
             editor.dispose();
