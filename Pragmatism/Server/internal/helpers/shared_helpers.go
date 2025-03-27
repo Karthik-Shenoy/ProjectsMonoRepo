@@ -42,22 +42,29 @@ func GetCurrentUnixTime() int64 {
 
 func AsyncReadStream(r *io.ReadCloser, ch chan<- *AsyncReadStreamResult) {
 	defer close(ch)
-	p, err := io.ReadAll(*r)
+	result := ""
+	for {
+		buf := make([]byte, 1024)
+		n, err := (*r).Read(buf)
 
-	if err != nil {
-		ch <- &AsyncReadStreamResult{
-			Result: "",
-			Err: apperrors.NewAppError(
-				apperrors.SharedHelpers_Retryable_RunCommandFailed,
-				getServiceErrorOrigin("AsyncReadStream"),
-				"failed to read stream, msg"+err.Error(),
-			).Err(),
+		if n > 0 {
+			result += string(buf[:n])
 		}
-		return
-	}
 
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			ch <- &AsyncReadStreamResult{
+				Result: "",
+				Err:    err,
+			}
+			return
+		}
+
+	}
 	ch <- &AsyncReadStreamResult{
-		Result: string(p),
+		Result: result,
 		Err:    nil,
 	}
 }
@@ -91,8 +98,11 @@ func RunCmdAndGetStdFiles(name string, arg ...string) *RunCmdAndGetStdFilesResul
 	go AsyncReadStream(&cmdStdOut, stdOutReaderChan)
 	go AsyncReadStream(&cmdStdErr, stdErrReaderChan)
 
+	// wait on the stream to be read by reaching EOF, before closing the pipe
+	stdErrResult := <-stdErrReaderChan
+	stdOutResult := <-stdOutReaderChan
+
 	if err := cmdHandle.Wait(); err != nil {
-		stdErrResult := <-stdErrReaderChan
 		if stdErrResult.Err == nil {
 			return &RunCmdAndGetStdFilesResult{
 				StdOut: nil,
@@ -120,7 +130,6 @@ func RunCmdAndGetStdFiles(name string, arg ...string) *RunCmdAndGetStdFilesResul
 		}
 	}
 
-	stdOutResult := <-stdOutReaderChan
 	if stdOutResult.Err != nil {
 		return &RunCmdAndGetStdFilesResult{
 			Err: apperrors.NewAppError(
