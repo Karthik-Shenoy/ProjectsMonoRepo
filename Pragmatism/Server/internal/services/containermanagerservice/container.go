@@ -89,10 +89,8 @@ func (container *Container) Start() *apperrors.AppError {
 							}
 							continue
 						}
-						// temporary fix
-						temp := *result.StdOut + *result.StdErr
 						task.ChanNotifier <- &contracts.TaskNotification{
-							Result:  &temp,
+							Result:  result.StdErr,
 							DbgLogs: dbgLogs,
 							Err:     nil,
 						}
