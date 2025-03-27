@@ -47,12 +47,8 @@ jobs:
             cp ~/git_repos/ProjectsMonoRepo/Pragmatism/Server/bin/PragmatismApp ~/hosted/Pragmatism
             cp -r ~/git_repos/ProjectsMonoRepo/Pragmatism/Server/public ~/hosted/Pragmatism
             cd ~/hosted/Pragmatism
-            mkdir .temp
-            
-            echo "${{ secrets.SET_ENV_SCRIPT }}" | base64 --decode > deploy.sh
-            chmod +x deploy.sh
-            ./deploy.sh
-            
+            sudo mkdir ".temp"
+            source /etc/environment
             chmod +x PragmatismApp
             nohup ./PragmatismApp > nohup.out 2>&1 &
           EOF
