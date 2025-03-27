@@ -10,11 +10,11 @@ const HomePage = () => {
         { top: 50, left: 70 },
         { top: 90, left: 80 },
     ]);
-    const directions = [
-        { dx: 0.15, dy: 0.18 },
-        { dx: -0.25, dy: 0.17 },
-        { dx: 0.20, dy: -0.12 },
-    ]
+    const [directions, setDirections] = useState([
+        { dx: 0.05, dy: 0.05 },
+        { dx: -0.05, dy: 0.05 },
+        { dx: 0.05, dy: -0.05 },
+    ])
 
     useEffect(() => {
         const updatePositions = () => {
@@ -23,23 +23,34 @@ const HomePage = () => {
                     const direction = directions[index];
                     let newTop = pos.top + direction.dy * 2; // Adjust speed as needed
                     let newLeft = pos.left + direction.dx * 2;
-
-                    // Reverse direction if hitting edges
                     if (newTop <= 0 || newTop >= 100) {
-                        direction.dy *= -Math.random() * 2;
                         newTop = Math.max(0, Math.min(100, newTop));
                     }
                     if (newLeft <= 0 || newLeft >= 100) {
-                        direction.dx *= -Math.random() * 2;
                         newLeft = Math.max(0, Math.min(100, newLeft));
                     }
-
                     return { top: newTop, left: newLeft };
                 });
             });
+
+            setDirections((directions) => {
+                return directions.map((dir, index) => {
+                    const newDir = { ...dir };
+                    // Reverse direction if hitting edges and ensure movement away from edges
+                    if (positions[index].top <= 0 || positions[index].top >= 100) {
+                        newDir.dy = positions[index].top <= 0 ? Math.abs(newDir.dy) : -Math.abs(newDir.dy);
+                        newDir.dy = newDir.dy === 0 ? (Math.random() * 0.01 + 0.01) : newDir.dy; // Ensure non-zero
+                    }
+                    if (positions[index].left <= 0 || positions[index].left >= 100) {
+                        newDir.dx = positions[index].left <= 0 ? Math.abs(newDir.dx) : -Math.abs(newDir.dx);
+                        newDir.dx = newDir.dx === 0 ? (Math.random() * 0.01 + 0.01) : newDir.dx; // Ensure non-zero
+                    }
+                    return newDir;
+                });
+            })
         };
 
-        const interval = setInterval(updatePositions, 50); // Adjust interval as needed
+        const interval = setInterval(updatePositions, 24); // Adjust interval as needed
         return () => clearInterval(interval);
     }, [directions]);
 
@@ -57,7 +68,6 @@ const HomePage = () => {
                         top: `${positions[0].top}%`,
                         left: `${positions[0].left}%`,
                         transform: "translate(-50%, -50%)",
-                        transition: "all 0.05s linear",
                     }}
                 ></div>
                 <div
@@ -66,7 +76,6 @@ const HomePage = () => {
                         top: `${positions[1].top}%`,
                         left: `${positions[1].left}%`,
                         transform: "translate(-50%, -50%)",
-                        transition: "all 0.05s linear",
                     }}
                 ></div>
                 <div
@@ -75,7 +84,6 @@ const HomePage = () => {
                         top: `${positions[2].top}%`,
                         left: `${positions[2].left}%`,
                         transform: "translate(-50%, -50%)",
-                        transition: "all 0.05s linear",
                     }}
                 ></div>
             </div>
