@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body></body>
+
+    <script>
+        // notify the opener of authorization completion
+        window.opener.postMessage(
+            JSON.stringify({
+                kind: "AUTH-POPUP",
+                done: true,
+                payload: "{{Payload}}",
+                signature: "{{Signature}}",
+                userName: "{{UserName}}",
+            }),
+            "http://localhost:5173"
+        );
+        window.close();
+    </script>
+</html>
