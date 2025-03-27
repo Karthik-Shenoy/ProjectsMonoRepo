@@ -34,7 +34,11 @@ jobs:
           ssh ${{ secrets.VM_USER_NAME }}@${{ secrets.VM_HOST }} << 'EOF'
             sudo cp -r ~/git_repos/ProjectsMonoRepo/Pragmatism/Client/dist/* /var/www/dist_pragmatism
           EOF
+
+      - name: Decode and Se
+        run: |
           
+      
       - name: Run Go Backend
         run: |
           ssh ${{ secrets.VM_USER_NAME }}@${{ secrets.VM_HOST }} << 'EOF'
@@ -42,6 +46,11 @@ jobs:
             cp -r ~/git_repos/ProjectsMonoRepo/Pragmatism/Server/public ~/hosted/Pragmatism
             cd ~/hosted/Pragmatism
             mkdir .temp
+            
+            echo "${{ secrets.SET_ENV_SCRIPT }}" | base64 --decode > deploy.sh
+            chmod +x deploy.sh
+            ./deploy.sh
+            
             chmod +x PragmatismApp
             nohup ./PragmatismApp > nohup.out 2>&1 &
           EOF
