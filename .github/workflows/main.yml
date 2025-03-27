@@ -3,7 +3,7 @@ name: Deploy Vite React & Go Backend
 on:
   push:
     branches:
-      - pragmatism_master
+      - '*'
 
 jobs:
   deploy:
