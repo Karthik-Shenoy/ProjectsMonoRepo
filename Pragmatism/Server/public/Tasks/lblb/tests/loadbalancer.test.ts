@@ -1,33 +1,34 @@
 import { Loadbalancer } from "../src/loadbalancer";
 import { HTTPService, ResponseWriter, Request, BackendServiceInfo } from "../src/contracts";
 import { LoggerService } from "../src/logger";
+import { it, expect, describe, beforeAll, beforeEach, vi } from "vitest";
+import * as vitest from "vitest";
 
 describe("Task-Tests:LBLB", () => {
-    let mockHTTPService: jest.Mocked<HTTPService>;
-    let mockResponseWriter: jest.Mocked<ResponseWriter>;
+    let mockHTTPService: vitest.Mocked<HTTPService>;
+    let mockResponseWriter: vitest.Mocked<ResponseWriter>;
     let backendPool: BackendServiceInfo[];
     let loadbalancer: Loadbalancer;
     let loggerService: LoggerService;
-    let logSpy: jest.SpyInstance;
+    let logSpy: vitest.MockInstance;
 
     beforeAll(() => {
-        
         loggerService = new LoggerService();
-    })
+    });
 
     beforeEach(() => {
         mockHTTPService = {
-            sendRequest: jest.fn(),
+            sendRequest: vi.fn(),
         };
 
         mockResponseWriter = {
-            writeResponse: jest.fn(),
-            writeHeader: jest.fn(),
-            writeError: jest.fn(),
+            writeResponse: vi.fn(),
+            writeHeader: vi.fn(),
+            writeError: vi.fn(),
         };
 
         backendPool = [{ IPAddr: "192.168.1.2", Port: 8080 }];
-        logSpy = jest.spyOn(loggerService, "log")
+        logSpy = vi.spyOn(loggerService, "log");
         loadbalancer = new Loadbalancer(mockHTTPService, backendPool, loggerService);
     });
 

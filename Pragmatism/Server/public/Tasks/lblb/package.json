@@ -3,19 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "npx vitest --run"
   },
   "author": "karthik shenoy",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.27.0",
-    "@types/jest": "^29.5.14",
     "@types/node": "*",
-    "babel-jest": "^29.7.0",
-    "jest": "^29.7.0",
-    "typescript": "^5.8.2"
+    "esbuild": "^0.25.1",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
   }
 }
