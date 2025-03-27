@@ -1,0 +1,17 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table Tasks {
+  id int [primary key, ref: < Task_files.task_id] 
+  title string
+  description string
+  markdown_url string
+  num_solves int
+  task_dir string
+}
+
+Table TaskFiles {
+  task_id int 
+  fileName string
+}
+
