@@ -29,8 +29,7 @@ func (container *Container) Start() *apperrors.AppError {
 
 	go func() {
 		for {
-			fmt.Println("Task loop running")
-			fmt.Println("Trace: task queue", container.pTasksQueue, "IsEmpty", container.pTasksQueue.IsEmpty())
+
 			if container.pTasksQueue.IsEmpty() {
 				time.Sleep(500 * time.Millisecond)
 				continue
@@ -142,7 +141,6 @@ func (container *Container) CNumQueuedTasks() uint16 {
 }
 
 func (container *Container) Enqueue(item *contracts.TaskNotifierWrapper) {
-	fmt.Println("Trace: task enqueued at container")
 	container.pTasksQueue.Enqueue(item)
 }
 
