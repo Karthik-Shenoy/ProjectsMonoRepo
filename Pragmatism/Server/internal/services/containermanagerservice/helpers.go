@@ -69,7 +69,8 @@ func RunContainer(taskDir, containerName string) *apperrors.AppError {
 			getServiceErrorOrigin("RunContainer"),
 			fmt.Sprint(
 				"Run Command  failed for docker run command: ",
-				", errorInfo:", errorInfo),
+				", errorInfo:", errorInfo,
+				"err:", runCmdResult.Err.Error()),
 		)
 	}
 
