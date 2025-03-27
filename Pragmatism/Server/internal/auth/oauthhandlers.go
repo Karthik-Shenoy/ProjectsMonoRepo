@@ -20,7 +20,7 @@ func oauthHandler(w http.ResponseWriter, req *http.Request) {
 	OAuthCode := req.URL.Query().Get("code")
 	fmt.Println(OAuthCode)
 
-	popUpHtmlTemplate, err := os.ReadFile("./internal/auth/templates/oauth-redirect-page.html")
+	popUpHtmlTemplate, err := os.ReadFile("./public/templates/oauth-redirect-page.html")
 
 	if err != nil {
 		fmt.Println(err)
