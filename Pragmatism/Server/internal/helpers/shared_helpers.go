@@ -130,7 +130,7 @@ func RunCmdAndGetStdFiles(name string, arg ...string) *RunCmdAndGetStdFilesResul
 			Err: apperrors.NewAppError(
 				apperrors.SharedHelpers_Retryable_RunCommandFailed,
 				getServiceErrorOrigin("RunCmdAndGetStdFiles"),
-				"Failed to read command stdout or stderr",
+				"Failed to read command stdout or stderr, msg:"+stdOutResult.Err.Error(),
 			).Err(),
 		}
 	}
