@@ -1,5 +1,6 @@
 import { useMonaco } from "@monaco-editor/react"
 import * as React from "react"
+import { CustomEditorFallback } from "./CustomEditorFallback"
 
 export type MonacoCodeEditor = {
     getValue: () => string
@@ -20,6 +21,7 @@ export const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({ extraL
     const monaco = useMonaco()
     const editorDivRef = React.useRef<HTMLDivElement>(null)
     let [editorInstance, setEditorInstance] = React.useState<MonacoCodeEditor | undefined>(undefined)
+    let [isLoadingMonaco, setIsLoadingMonaco] = React.useState(true)
 
     React.useImperativeHandle(ref, () => editorInstance)
 
@@ -27,7 +29,7 @@ export const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({ extraL
         if (!editorDivRef.current || !monaco) {
             return
         }
-
+        setIsLoadingMonaco(false)
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
             moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
             allowJs: false,
@@ -75,9 +77,18 @@ export const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({ extraL
             editor.dispose();
             resizeObserver.disconnect();
         }
-    }, [])
+    }, [monaco])
 
     return (
-        <div ref={editorDivRef} className={className} />
+        <>
+            {
+                isLoadingMonaco
+                &&
+                <div className="relative w-full h-full">
+                    <CustomEditorFallback />
+                </div>
+            }
+            <div ref={editorDivRef} className={className} />
+        </>
     )
 }

@@ -13,6 +13,11 @@ export default defineConfig(({ mode }) => ({
         },
     },
     define: {
-        __API_URL__: JSON.stringify(mode == "development" ? "http://127.0.0.1:3000" : "https://www.pragmatism.shenoyk.com/api"),
+        __API_URL__: JSON.stringify(
+            mode == "development"
+                ? //"http://127.0.0.1:3000"
+                  "https://www.pragmatism.shenoyk.com/api"
+                : "https://www.pragmatism.shenoyk.com/api"
+        ),
     },
 }));

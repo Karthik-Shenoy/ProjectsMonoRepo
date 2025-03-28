@@ -10,7 +10,9 @@ export type FetchState<T> = {
 }
 
 export type TaskDataFetchState = FetchState<DTO.GetTaskResponse>;
-export type TaskResultFetchState = FetchState<DTO.TaskSubmitResponse>
+export type TaskResultFetchState = FetchState<DTO.TaskSubmitResponse>;
+
+export type SetTaskDataFetchStateWrapper = (stateUpdate: TaskDataFetchState | ((prevState: TaskDataFetchState) => TaskDataFetchState)) => void;
 
 export type TaskViewContextType = {
     taskId?: string;
@@ -40,6 +42,23 @@ export const TaskViewContextProvider: React.FC<React.PropsWithChildren> = ({ chi
         isFetching: false
     })
 
+    const setTaskResultFetchStateWrapper = (fetchState: TaskResultFetchState) => {
+        localStorage.getItem("taskResultFetchState") || localStorage.setItem("taskResultFetchState", JSON.stringify(fetchState))
+        setTaskResultFetchState(fetchState)
+    }
+
+    const setTaskDataFetchStateWrapper: SetTaskDataFetchStateWrapper = (fetchState: TaskDataFetchState | ((prevState: TaskDataFetchState) => TaskDataFetchState)) => {
+
+        if (typeof fetchState === "function") {
+            localStorage.setItem("taskDataFetchState", JSON.stringify(fetchState(taskDataFetchState)))
+            setTaskDataFetchState(fetchState(taskDataFetchState))
+            return
+        }
+
+        localStorage.getItem("taskDataFetchState") || localStorage.setItem("taskDataFetchState", JSON.stringify(fetchState))
+        setTaskDataFetchState(fetchState)
+    }
+
     const {
         isPending: _isPending,
         error: err,
@@ -59,23 +78,25 @@ export const TaskViewContextProvider: React.FC<React.PropsWithChildren> = ({ chi
         })
 
     React.useEffect(() => {
-        setTaskDataFetchState({
+        setTaskDataFetchStateWrapper({
             isFetching: isFetchingTaskData,
             error: err,
             data: getTasksResponse
         })
     }, [isFetchingTaskData, getTasksResponse, err])
 
+    const cachedTaskResultFetchState = localStorage.getItem("taskResultFetchState") ? JSON.parse(localStorage.getItem("taskResultFetchState")!) as TaskResultFetchState : null
+    const cachedTaskDataFetchState = localStorage.getItem("taskDataFetchState") ? JSON.parse(localStorage.getItem("taskDataFetchState")!) as TaskDataFetchState : null
+
+
     const value: TaskViewContextType & TaskViewContextCallbacks = {
         taskId: params.taskId,
-        taskDir: taskDataFetchState.data?.taskDir,
-        taskResultFetchState,
-        taskDataFetchState,
-        setTaskDataFetchState,
-        setTaskResultFetchState
+        taskDir: cachedTaskDataFetchState?.data?.taskDir || taskDataFetchState.data?.taskDir,
+        taskResultFetchState:  {...taskResultFetchState, ...cachedTaskResultFetchState, isFetching: taskResultFetchState.isFetching},
+        taskDataFetchState: {...taskDataFetchState, ...cachedTaskDataFetchState, isFetching: taskDataFetchState.isFetching},
+        setTaskDataFetchState: setTaskDataFetchStateWrapper,
+        setTaskResultFetchState: setTaskResultFetchStateWrapper
     }
-
-
 
     return (
         <TaskViewContext.Provider value={value}>
