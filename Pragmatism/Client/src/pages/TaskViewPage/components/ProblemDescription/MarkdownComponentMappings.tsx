@@ -16,7 +16,7 @@ export const componentMappings: {
         </blockquote>
     ),
     code: ({ children }) => (
-        <code className="dark:bg-gray-700 bg-gray-200 text-green-500 px-[3px] py-[2px] rounded-sm">{children}</code>
+        <code className="text-green-700 px-[3px] py-[2px] rounded-sm">{children}</code>
     ),
     pre: ({ children }) => (
         <pre className="bg-gray-900 text-white p-4 rounded-md overflow-x-auto">{children}</pre>

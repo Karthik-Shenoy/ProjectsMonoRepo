@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var IsDevMode = false
+
 type AsyncReadStreamResult struct {
 	Result string
 	Err    error

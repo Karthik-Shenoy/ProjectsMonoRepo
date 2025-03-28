@@ -15,7 +15,7 @@ export const TaskView: React.FC<{}> = () => {
     return (
         <ErrorBoundary>
             <TaskViewContextProvider>
-                <div className="relative flex flex-col items-center justify-center h-full overflow-hidden bg-gradient-to-br pt-15">
+                <div className="relative flex flex-col items-center justify-center h-full overflow-hidden bg-gradient-to-br pt-15 max-h-screen">
                     <LoginDialogBlocking />
                     <ResizablePanelGroup direction="horizontal" className="grow">
                         <ResizablePanel>

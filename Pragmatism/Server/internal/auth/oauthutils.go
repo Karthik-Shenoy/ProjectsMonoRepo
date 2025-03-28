@@ -31,7 +31,7 @@ func ExchangeCodeForTokens(code string) (*TokensResponse, error) {
 		"code":          code,
 		"client_id":     os.Getenv(ENV_VARIABLE_GOOGLE_CLIENT_ID),
 		"client_secret": os.Getenv(ENV_VARIABLE_GOOGLE_CLIENT_SECRET),
-		"redirect_uri":  "https://www.pragmatism.shenoyk.com/api/auth/callback",
+		"redirect_uri":  GetAuthRedirectURL(),
 		"grant_type":    "authorization_code",
 	}
 	payload, _ := json.Marshal(data)
