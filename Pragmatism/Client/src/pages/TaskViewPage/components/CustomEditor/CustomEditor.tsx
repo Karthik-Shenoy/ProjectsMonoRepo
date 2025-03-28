@@ -7,6 +7,7 @@ import { type MonacoCodeEditor } from "./MonacoEditorWrapper";
 import { DTO } from "@src/dto/dto";
 import { useAppAuthContext } from "@src/contexts/AppAuthContext/AppAuthContext";
 import { useTaskViewContext } from "../../contexts/TaskViewContext";
+import { ProblemJudgePanelTabs } from "../ProblemJudgePanel/ProblemJudgePanel";
 
 const EditorLazy = React.lazy(() =>
     import("./MonacoEditorWrapper").then((module) => {
@@ -21,7 +22,15 @@ export const CustomEditor: React.FC<{}> = () => {
     const editorRef = React.useRef<MonacoCodeEditor>(null);
     const themeContext = useTheme();
     const { userName } = useAppAuthContext();
-    const { taskDataFetchState, taskDir, setTaskResultFetchState, setTaskDataFetchState } = useTaskViewContext();
+    const {
+        taskDataFetchState,
+        taskResultFetchState,
+        taskDir,
+        setTaskResultFetchState,
+        setTaskData,
+        setJudgePanelTab
+    } = useTaskViewContext();
+    
     const { isFetching: isFetchingTaskData, data: taskFetchData } = taskDataFetchState;
     const taskFiles = taskFetchData?.taskFiles;
 
@@ -32,16 +41,19 @@ export const CustomEditor: React.FC<{}> = () => {
     }
 
     const handleEditorDataChanged = (editor: MonacoCodeEditor) => {
-        setTaskDataFetchState((previousState) => {
-            const previousData = previousState.data;
-            const newTaskFiles = [...(previousData?.taskFiles || [])]
+        setTaskData((previousState) => {
+            if (!previousState) {
+                return undefined;
+            }
+
+            const newTaskFiles = [...(previousState.taskFiles || [])]
 
             newTaskFiles[0].content = editor.getValue()
 
             return {
                 ...previousState,
                 data: {
-                    taskDir: previousData?.taskDir || "",
+                    taskDir: previousState.taskDir || "",
                     taskFiles: newTaskFiles
                 }
             }
@@ -72,6 +84,8 @@ export const CustomEditor: React.FC<{}> = () => {
             isFetching: true,
             error: null
         })
+
+        setJudgePanelTab(ProblemJudgePanelTabs.Result)
 
         try {
             // abort the previous request if any
@@ -115,9 +129,9 @@ export const CustomEditor: React.FC<{}> = () => {
                 </div>
                 <div className="ml-auto">
                     <Button
-                        className="text-xs py-1 h-6 px-2 font-bold text-green-500 mr-4 cursor-pointer hover:text-white hover:bg-green-800"
+                        className={`text-xs py-1 h-6 px-2 font-bold ${taskResultFetchState.isFetching ? "text-accent cursor-none" : "text-green-500 cursor-pointer"} mr-4  hover:text-white hover:bg-green-800`}
                         variant={"secondary"}
-                        onClick={onSubmit}>
+                        onClick={taskResultFetchState.isFetching ? undefined : onSubmit}>
                         <CloudUpload />
                         Submit
                     </Button>

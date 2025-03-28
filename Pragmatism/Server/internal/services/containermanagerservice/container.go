@@ -14,12 +14,14 @@ type Container struct {
 	pTasksQueue   *shared_types.Queue[*contracts.TaskNotifierWrapper]
 	isRunningTask bool
 	// task-container-*
-	ContainerName string
-	TaskDir       string
+	ContainerName       string
+	TaskDir             string
+	shouldKillContainer bool
 }
 
 // Runs the container and starts the task loop
 func (container *Container) Start() *apperrors.AppError {
+	container.shouldKillContainer = false
 	appErr := RunContainer(container.TaskDir, container.ContainerName)
 	fmt.Println("container.Start()")
 	if appErr != nil {
@@ -29,6 +31,10 @@ func (container *Container) Start() *apperrors.AppError {
 
 	go func() {
 		for {
+
+			if container.shouldKillContainer {
+				return
+			}
 
 			if container.pTasksQueue.IsEmpty() {
 				time.Sleep(500 * time.Millisecond)
@@ -144,8 +150,8 @@ func (container *Container) Enqueue(item *contracts.TaskNotifierWrapper) {
 }
 
 func (container *Container) Kill() *apperrors.AppError {
-	result := helpers.RunCmdAndGetStdFiles("docker", "stop", container.ContainerName)
-
+	result := helpers.RunCmdAndGetStdFiles("docker", "rm", container.ContainerName, "--force")
+	container.shouldKillContainer = true
 	if result.Err != nil {
 		errMsg := ""
 		if result.StdErr != nil {

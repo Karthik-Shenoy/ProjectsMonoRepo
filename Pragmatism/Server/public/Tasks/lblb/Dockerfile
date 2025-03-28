@@ -7,5 +7,8 @@ WORKDIR /usr/src/app
 # Copy the entire application code first
 COPY . .
 
+# instal deps during image creation
+RUN npm install
+
 # Keep the container running
 CMD ["tail", "-f", "/dev/null"]

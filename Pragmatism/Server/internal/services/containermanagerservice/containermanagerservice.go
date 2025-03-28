@@ -88,6 +88,20 @@ func (containerMgrService *ContainerManagerService) Start() {
 		}
 
 	}()
+
+	// prune free containers every 10 seconds
+	go func() {
+		for {
+			time.Sleep(10 * time.Second)
+			containerMgrService.queueMutex.Lock()
+			appErr := containerMgrService.pruneFreeContainers()
+			if appErr != nil {
+				// log error
+				fmt.Println("Error while killing free containers:", appErr.Err())
+			}
+			containerMgrService.queueMutex.Unlock()
+		}
+	}()
 }
 
 func (containerMgrService *ContainerManagerService) QueueTask(taskItem *contracts.TaskNotifierWrapper) {
@@ -111,6 +125,18 @@ func (containerMgrService *ContainerManagerService) killLRUContainer() *apperror
 		}
 		time.Sleep(SLEEP_TIME_MS)
 	}
+}
+
+func (containerMgrService *ContainerManagerService) pruneFreeContainers() *apperrors.AppError {
+	for _, container := range containerMgrService.containers {
+		if container.IsContainerFree() {
+			appErr := container.Kill()
+			if appErr != nil {
+				return appErr
+			}
+		}
+	}
+	return nil
 }
 
 func (containerMgrService *ContainerManagerService) createAndStartNewContainerForTask(task *contracts.TaskNotifierWrapper) (*Container, *apperrors.AppError) {
