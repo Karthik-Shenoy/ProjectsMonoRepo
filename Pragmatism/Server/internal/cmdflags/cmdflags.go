@@ -1,6 +1,6 @@
 package cmdflags
 
-var DevMode = true
+var DevMode = false
 
 func IsDevMode() bool {
 	return DevMode
