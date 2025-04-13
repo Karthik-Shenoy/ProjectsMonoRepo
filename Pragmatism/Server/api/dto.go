@@ -6,10 +6,11 @@ type AuthToken struct {
 }
 
 type TaskSubmitRequest struct {
-	UserName  string     `json:"userName"`  // User name
-	TaskDir   string     `json:"taskDir"`   // Unique identifier for the task
-	TaskFiles []TaskFile `json:"taskFiles"` // List of files related to the task
-	Language  string     `json:"language"`  // Language of the solution
+	UserId    string     `json:"userId"`
+	TaskId    int        `json:"taskId"`
+	TaskDir   string     `json:"taskDir"`
+	TaskFiles []TaskFile `json:"taskFiles"`
+	Language  string     `json:"language"`
 }
 
 type GetTaskResponse struct {
@@ -37,4 +38,15 @@ type TestResult struct {
 type TaskSubmitResponse struct {
 	TestResults []*TestResult `json:"testResults"`
 	DbgLogs     string        `json:"dbgLogs"`
+}
+
+type HttpHandlerErrorResponse struct {
+	ShouldRetry bool `json:"shouldRetry"`
+}
+
+type SolvedTask struct {
+	TaskId   uint32 `json:"taskId"`
+	Title    string `json:"title"`
+	Solution string `json:"solution"`
+	SolvedAt string `json:"solved_at"`
 }

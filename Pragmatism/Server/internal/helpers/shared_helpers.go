@@ -5,11 +5,10 @@ import (
 	"io"
 	"os/exec"
 	"pragmatism/internal/apperrors"
+	"pragmatism/internal/services/telemetryservice"
 	"strings"
 	"time"
 )
-
-var IsDevMode = false
 
 type AsyncReadStreamResult struct {
 	Result string
@@ -107,7 +106,7 @@ func RunCmdAndGetStdFiles(name string, arg ...string) *RunCmdAndGetStdFilesResul
 	if err := cmdHandle.Wait(); err != nil {
 		if stdErrResult.Err == nil {
 			return &RunCmdAndGetStdFilesResult{
-				StdOut: nil,
+				StdOut: &stdOutResult.Result,
 				StdErr: &stdErrResult.Result,
 				Err: apperrors.NewAppError(
 					apperrors.SharedHelpers_Retryable_RunCommandFailed,
@@ -147,4 +146,13 @@ func RunCmdAndGetStdFiles(name string, arg ...string) *RunCmdAndGetStdFilesResul
 		StdErr: nil,
 		Err:    nil,
 	}
+}
+
+func LogErrorToTelemetryAndGetPayload(appErr *apperrors.AppError) []byte {
+	payload, err := appErr.GetHTTPResponseMsg()
+	if err != nil {
+		telemetryservice.GetInstance().LogError(err)
+	}
+	telemetryservice.GetInstance().LogError(appErr)
+	return payload
 }

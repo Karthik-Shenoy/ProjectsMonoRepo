@@ -67,7 +67,7 @@ func (container *Container) Start() *apperrors.AppError {
 
 			fmt.Println("Trace: Copied files to container")
 			// copy files from the task into container run them and notify the enqueuer
-			userFilesDirForTask := getUserFilesTempDirNameForTask(task.PTask.UserName, task.PTask.TaskDir)
+			userFilesDirForTask := getUserFilesTempDirNameForTask(task.PTask.UserId, task.PTask.TaskDir)
 			appErr = copyFilesToContainer(userFilesDirForTask, container.ContainerName, TASK_DEST_PATH)
 			if appErr != nil {
 				task.ChanNotifier <- &contracts.TaskNotification{
@@ -96,7 +96,7 @@ func (container *Container) Start() *apperrors.AppError {
 							continue
 						}
 						task.ChanNotifier <- &contracts.TaskNotification{
-							Result:  result.StdErr,
+							Result:  result.StdOut,
 							DbgLogs: dbgLogs,
 							Err:     nil,
 						}

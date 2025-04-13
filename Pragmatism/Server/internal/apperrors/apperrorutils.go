@@ -1,9 +1,12 @@
 package apperrors
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"pragmatism/api"
+)
 
 func GetNoRetryableErrorResponse() []byte {
-	response := HttpHandlerErrorResponse{
+	response := api.HttpHandlerErrorResponse{
 		ShouldRetry: false,
 	}
 

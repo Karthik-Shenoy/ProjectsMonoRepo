@@ -8,25 +8,31 @@ import (
 
 func TestGetTaskResultFromTestResult(t *testing.T) {
 	// Arrange
-	jestTestResult := " FAIL  tests/loadbalancer.test.ts > Task-Tests:LBLB > should forward the request to a backend service\n\t\n\tAssertionError: expected \"spy\" to be called with arguments: [ Array(2) ]Received:\nNumber of calls: 0\n\t❯ tests/loadbalancer.test.ts:52:45\n50|         await loadbalancer.onRequest(request, mockResponseWriter);\n\t FAIL  tests/loadbalancer.test.ts > Task-Tests:LBLB > should handle errors from backend services\n\tAssertionError: expected \"spy\" to be called with arguments: [ Error: Backend error ]\nceived:\n\tNumber of calls: 0\n \tFAIL  tests/loadbalancer.test.ts > Task-Tests:LBLB > should consistently map the requests to the same servers for cache affinity\nAssertionError: expected \"spy\" to be called 10 times, but got 0 times"
+	viTestResult := ` 
+		RUN  v3.0.9 /usr/src/app
+
+		✓ tests/loadbalancer.test.ts > Task-Tests:LBLB > should forward the request to a backend service
+ 		✓ tests/loadbalancer.test.ts > Task-Tests:LBLB > should handle errors from backend services
+ 		✓ tests/loadbalancer.test.ts > Task-Tests:LBLB > should consistently map the requests to the same servers for cache affinity
+	`
 	expected := []*api.TestResult{
 		{
-			IsSuccessful: false,
+			IsSuccessful: true,
 			TestName:     "should forward the request to a backend service",
 		},
 
 		{
-			IsSuccessful: false,
+			IsSuccessful: true,
 			TestName:     "should handle errors from backend services",
 		},
 		{
-			IsSuccessful: false,
+			IsSuccessful: true,
 			TestName:     "should consistently map the requests to the same servers for cache affinity",
 		},
 	}
 
 	// Act
-	result := handlers.GetTaskResultFromTestResult(jestTestResult)
+	result := handlers.GetTaskResultFromTestResult(viTestResult)
 
 	// Assert
 	if len(result) != 3 {

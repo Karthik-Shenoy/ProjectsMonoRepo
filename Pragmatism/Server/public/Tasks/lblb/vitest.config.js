@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     maxWorkers: "100%", // Use all available CPU cores
     environment: "node", // or "jsdom" for browser-like tests
+    reporters: "verbose", // Use verbose reporter for detailed output
     deps: {
       optimizer: {
         esbuildOptions: {

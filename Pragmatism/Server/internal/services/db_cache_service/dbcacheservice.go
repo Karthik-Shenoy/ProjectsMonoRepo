@@ -3,10 +3,33 @@ package db_cache_service
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"pragmatism/internal/apperrors"
 	"pragmatism/internal/helpers"
 	"pragmatism/internal/services/database_service"
-	"sync"
+	"pragmatism/internal/services/serviceinjector"
 )
+
+// initialize package and register the service
+func init() {
+	var factory serviceinjector.FactoryFunction[DBCacheService] = func(args ...any) (*DBCacheService, error) {
+		dbService, ok := args[0].(*database_service.DatabaseService)
+		if !ok || dbService == nil {
+			return nil, fmt.Errorf("DBCacheService.factory: invalid argument type or nil value")
+		}
+		return &DBCacheService{
+			dbService: dbService,
+			cache:     make(map[string]*CacheRecord),
+		}, nil
+	}
+
+	// Type is inferred here
+	serviceinjector.RegisterService(factory)
+}
+
+func getServiceErrorOrigin(funcName string) string {
+	return "DBCacheService." + funcName
+}
 
 type CacheRecord struct {
 	Data      []byte
@@ -19,7 +42,7 @@ type DBCacheService struct {
 	cache     map[string]*CacheRecord
 }
 
-func (dbCache *DBCacheService) Query(query string) ([]byte, error) {
+func (dbCache *DBCacheService) Query(query string) ([]byte, *apperrors.AppError) {
 
 	if dbCache.cache[query] != nil {
 		if dbCache.cache[query].CreatedAt+dbCache.cache[query].TTL > helpers.GetCurrentUnixTime() {
@@ -27,22 +50,35 @@ func (dbCache *DBCacheService) Query(query string) ([]byte, error) {
 		}
 	}
 
-	rows, err := dbCache.dbService.Query(query)
-	if err != nil {
-		return nil, err
+	rows, appErr := dbCache.dbService.Query(query)
+	if appErr != nil {
+		return nil, apperrors.NewAppErrorFromLowerLayerError(
+			apperrors.DBCacheService_Retryable_FailedToQueryDatabase,
+			getServiceErrorOrigin("Query"),
+			"Failed to query database : "+appErr.Message,
+			appErr,
+		)
 	}
 	defer rows.Close()
 
 	columns, err := getCleanedColumns(rows)
 
 	if err != nil {
-		return nil, err
+		return nil, apperrors.NewAppError(
+			apperrors.DBCacheService_Retryable_FailedToGetCleanedColumns,
+			getServiceErrorOrigin("Query"),
+			"Failed to get cleaned columns : "+err.Error(),
+		)
 	}
 
 	typeInfo := make(map[string]string)
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
-		return nil, err
+		return nil, apperrors.NewAppError(
+			apperrors.DBCacheService_Retryable_FailedToGetColumnTypes,
+			getServiceErrorOrigin("Query"),
+			"Failed to get cleaned columns : "+err.Error(),
+		)
 	}
 
 	for _, columnType := range columnTypes {
@@ -59,7 +95,11 @@ func (dbCache *DBCacheService) Query(query string) ([]byte, error) {
 			values[i] = new([]byte)
 		}
 		if err := rows.Scan(values...); err != nil {
-			return nil, err
+			return nil, apperrors.NewAppError(
+				apperrors.DBCacheService_Retryable_FailedToScanRows,
+				getServiceErrorOrigin("Query"),
+				"Failed to scan rows : "+err.Error(),
+			)
 		}
 		convertedMapRow := make(map[string]interface{})
 		for i, column := range columns {
@@ -81,7 +121,11 @@ func (dbCache *DBCacheService) Query(query string) ([]byte, error) {
 	payload, err := json.Marshal(convertedMapRows)
 
 	if err != nil {
-		return nil, err
+		return nil, apperrors.NewAppError(
+			apperrors.DBCacheService_NonRetryable_FailedToMarshalCacheData,
+			getServiceErrorOrigin("Query"),
+			"Failed to marshal cache data : "+err.Error(),
+		)
 	}
 
 	dbCache.cache[query] = &CacheRecord{
@@ -105,26 +149,4 @@ func getCleanedColumns(rows *sql.Rows) ([]string, error) {
 	}
 
 	return cleanedColumns, nil
-}
-
-var singletonMutex sync.Mutex
-var singleton *DBCacheService
-
-func GetInstance() (*DBCacheService, error) {
-	singletonMutex.Lock()
-	defer singletonMutex.Unlock()
-
-	if singleton == nil {
-		dbService, err := database_service.GetInstance()
-
-		if err != nil {
-			return nil, err
-		}
-
-		singleton = &DBCacheService{
-			dbService: dbService,
-			cache:     make(map[string]*CacheRecord),
-		}
-	}
-	return singleton, nil
 }
