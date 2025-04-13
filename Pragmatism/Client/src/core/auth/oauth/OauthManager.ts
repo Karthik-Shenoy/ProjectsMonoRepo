@@ -1,7 +1,7 @@
 import { AppAuthContextType } from "@src/contexts/AppAuthContext/AppAuthContext";
 import { GOOGLE_OAUTH_REDIRECT_URL } from "../AuthConstants";
 import { AUTH_TIMEOUT_MS } from "./AuthConstants";
-import { AuthCompletionResolver } from "./OauthContracts";
+import { AuthCompletionResolver, AuthFailureRejector, AuthToken } from "./OauthContracts";
 
 export enum OauthProvider {
     Google = "Google Login",
@@ -14,6 +14,7 @@ export class OauthManager {
     >();
 
     private authCompletionResolver: AuthCompletionResolver | undefined;
+    private authFailureRejector: AuthFailureRejector | undefined;
     private authSetTimeoutHandle: NodeJS.Timeout | undefined;
 
     private constructor(private provider: OauthProvider) {
@@ -31,17 +32,24 @@ export class OauthManager {
 
     public redirectToAuthPage = () =>
         new Promise<AppAuthContextType>((resolve, reject) => {
-            this.internalRedirectToOauthPage((authToken, userName) =>
-                resolve({
-                    token: authToken,
-                    userName,
-                })
+            this.internalRedirectToOauthPage(
+                ({id, name, picture}) =>
+                    resolve({
+                        userId: id,
+                        userName: name,
+                        userProfilePictureUrl: picture
+                    }) /* onAuthComplete */,
+                reject
             );
             this.authSetTimeoutHandle = setTimeout(() => reject, AUTH_TIMEOUT_MS);
         });
 
-    private internalRedirectToOauthPage = (onAuthComplete: AuthCompletionResolver) => {
+    private internalRedirectToOauthPage = (
+        onAuthComplete: AuthCompletionResolver,
+        onAuthFailure: AuthFailureRejector
+    ) => {
         this.authCompletionResolver = onAuthComplete;
+        this.authFailureRejector = onAuthFailure;
         switch (this.provider) {
             case OauthProvider.Google: {
                 this.openAuthPopup(GOOGLE_OAUTH_REDIRECT_URL);
@@ -63,14 +71,43 @@ export class OauthManager {
         );
     };
 
-    private authCompletionMessageHandler = (ev: MessageEvent) => {
-        const msg = JSON.parse(ev.data);
-        if (msg?.kind == "AUTH-POPUP" && msg?.done == true) {
-            this.authCompletionResolver?.(
-                { signature: msg.signature, payload: msg.payload },
-                msg.userName
-            );
-            clearTimeout(this.authSetTimeoutHandle);
+    private authCompletionMessageHandler = async (ev: MessageEvent) => {
+        try {
+            const msg = JSON.parse(ev.data);
+            if (msg?.kind == "AUTH-POPUP" && msg?.done == true) {
+                try {
+                    const res = await fetch(`${__API_URL__}/auth`, {
+                        method: "POST",
+                        credentials: "include",
+                        body: JSON.stringify({
+                            signature: msg.signature,
+                            payload: msg.payload,
+                        } as AuthToken),
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+
+                    if (!res.ok) {
+                        this.authFailureRejector?.(new Error("Failed to authenticate"));
+                        return;
+                    }
+
+                    this.authCompletionResolver?.({
+                        id: msg.userId,
+                        name: msg.userName,
+                        picture: msg.pictureUrl,
+                    });
+                    clearTimeout(this.authSetTimeoutHandle);
+                } catch (e) {
+                    this.authFailureRejector?.(new Error("Failed to authenticate"));
+                    console.log(e);
+                    clearTimeout(this.authSetTimeoutHandle);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log(e);
         }
     };
 }

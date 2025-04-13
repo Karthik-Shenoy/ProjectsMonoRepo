@@ -1,0 +1,24 @@
+apiVersion: 1
+
+datasources:
+  - name: Elasticsearch-Logs
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    isDefault: false
+    jsonData:
+      timeField: "@timestamp"
+      esVersion: 7
+      index: "otel-logs-alias"
+      logMessageField: "body"
+      logLevelField: "severity"
+
+  - name: Elasticsearch-Traces
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    isDefault: false
+    jsonData:
+      timeField: "@timestamp"
+      esVersion: 7
+      index: "otel-traces*"

@@ -8,6 +8,7 @@ import { AppLocation, useCurrentLocation } from "@src/hooks";
 import { isUserLoggedIn } from "@src/contexts/AppAuthContext/AppAuthContextUtils";
 import { useAppAuthContext } from "@src/contexts/AppAuthContext/AppAuthContext";
 import { FlexDiv } from "../FlexBox";
+import { Image } from "../Image";
 
 export type NavbarProps = {};
 
@@ -43,13 +44,18 @@ export const Navbar: React.FC<NavbarProps> = () => {
                     </Button>
                 </div>
 
-                <FlexDiv className="ml-auto mr-8 items-center justify-center gap-x-2 border-[0.5px] border-foreground px-4 rounded-4xl ">
+                <FlexDiv className={`ml-auto mr-8 items-center justify-center gap-x-2 ${isLoggedIn ? "border-[0.5px] border-foreground rounded-3xl" : ""}`}>
                     {isLoggedIn ?
-                        <FlexDiv horizontal className="items-center justify-center gap-x-2">
+                        <Button variant="ghost" className="items-center justify-center gap-x-2 rounded-3xl cursor-pointer" onClick={() => navigate(`/profile/${10}`)}>
                             <Typography className="text-background">{authContext.userName}</Typography>
-                            <CircleUser size={24} />
-                        </FlexDiv> : <LoginDialogButton />}
-
+                            <Image
+                                width={24}
+                                height={24}
+                                url={authContext.userProfilePictureUrl || ""}
+                                errorFallback={<CircleUser size={24} />}
+                                className="flex items-center justify-center rounded-full"
+                            />
+                        </Button> : <LoginDialogButton />}
                 </FlexDiv>
             </div>
         </header>

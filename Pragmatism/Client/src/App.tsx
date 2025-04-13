@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import HomePage from './pages/HomePage/HomePage';
 import { TasksPage } from './pages/TasksPage';
 import { AppLocation } from './hooks';
+import { ProfilePage } from './pages/ProfilePage/ProfilePage';
 
 const queryClient = new QueryClient();
 
@@ -16,24 +17,25 @@ function App(): React.ReactNode {
   return (
     <>
       <AppThemeProvider>
-        <AppAuthContextProvider>
-          <Navbar />
-          <div className='h-screen flex flex-col'>
-            <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <AppAuthContextProvider>
+            <Navbar />
+            <div className='h-screen flex flex-col'>
+
 
               <div className="grow">
                 <Routes>
                   <Route path={AppLocation.HomePage} element={<HomePage />} />
                   <Route path={AppLocation.TaskViewPage} element={<TaskView />} />
                   <Route path={AppLocation.TasksPage} element={<TasksPage />} />
+                  <Route path={AppLocation.ProfilePage} element={<ProfilePage />} />
                 </Routes>
               </div>
 
-            </QueryClientProvider>
 
-
-          </div >
-        </AppAuthContextProvider>
+            </div >
+          </AppAuthContextProvider>
+        </QueryClientProvider>
       </AppThemeProvider>
     </>
   )

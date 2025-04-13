@@ -18,7 +18,7 @@ export type TaskResultFetchState = FetchState<DTO.TaskSubmitResponse>;
 export type SetTaskDataFetchStateWrapper = (stateUpdate: TaskDataFetchState | ((prevState: TaskDataFetchState) => TaskDataFetchState)) => void;
 
 export type TaskViewContextType = {
-    taskId?: string;
+    taskId?: number;
     taskDir?: string;
     taskDataFetchState: TaskDataFetchState;
     taskResultFetchState: TaskResultFetchState;
@@ -57,7 +57,7 @@ export const TaskViewContextProvider: React.FC<React.PropsWithChildren> = ({ chi
         useTaskData(params.taskId)
 
     const value: TaskViewContextType & TaskViewContextCallbacks = {
-        taskId: params.taskId,
+        taskId: parseInt(params.taskId || "-1"),
         judgePanelTab,
         taskDir: taskData?.taskDir,
         taskResultFetchState,

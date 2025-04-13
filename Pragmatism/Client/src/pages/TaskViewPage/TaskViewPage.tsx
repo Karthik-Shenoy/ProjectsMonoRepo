@@ -5,6 +5,7 @@ import { LoginDialogBlocking } from "@src/components/DialogSurfaces/LoginDialog/
 import { TaskViewContextProvider } from "./contexts/TaskViewContext"
 import { ErrorBoundary } from "@src/components/ErrorBoundary/ErrorBoundary"
 import { ProblemJudgePanel } from "./components/ProblemJudgePanel/ProblemJudgePanel"
+import { ErrorDialogBlocking } from "@src/components/DialogSurfaces/ErrorDialog"
 
 
 
@@ -13,7 +14,7 @@ export const TaskView: React.FC<{}> = () => {
 
 
     return (
-        <ErrorBoundary>
+        <ErrorBoundary fallback={<ErrorDialogBlocking showErrorDialog/>}>
             <TaskViewContextProvider>
                 <div className="relative flex flex-col items-center justify-center h-full overflow-hidden bg-gradient-to-br pt-15 max-h-screen">
                     <LoginDialogBlocking />

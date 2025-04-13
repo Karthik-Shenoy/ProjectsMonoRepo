@@ -21,8 +21,9 @@ const EditorLazy = React.lazy(() =>
 export const CustomEditor: React.FC<{}> = () => {
     const editorRef = React.useRef<MonacoCodeEditor>(null);
     const themeContext = useTheme();
-    const { userName } = useAppAuthContext();
+    const { userName, userId } = useAppAuthContext();
     const {
+        taskId,
         taskDataFetchState,
         taskResultFetchState,
         taskDir,
@@ -69,6 +70,8 @@ export const CustomEditor: React.FC<{}> = () => {
 
         const taskSubmitRequest: DTO.TaskSubmitRequest = {
             userName,
+            userId: userId || "-1",
+            taskId: taskId || -1,
             taskFiles: [
                 {
                     fileName: taskFiles && taskFiles[0]?.fileName || "",

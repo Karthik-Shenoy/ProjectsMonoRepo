@@ -1,0 +1,55 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: ":4318"
+        cors:
+          allowed_origins: ["*"]
+      grpc:
+        endpoint: ":4317"
+
+exporters:
+  # otlp/jaeger:
+  #   endpoint: jaeger:4317
+  #   tls:
+  #     insecure: true
+
+  # prometheus:
+  #   endpoint: "0.0.0.0:8889"
+
+  elasticsearch/logs:
+    endpoints: [ "http://elasticsearch:9200" ]
+    timeout: 5s
+
+  elasticsearch/traces:
+    endpoints: [ "http://elasticsearch:9200" ]
+    timeout: 5s
+  
+  file:
+    path: /var/lib/otel-output/otel-exported-logs.json
+    format: json
+
+
+processors:
+  batch:
+
+service:
+  pipelines:
+    # traces:
+    #   receivers: [otlp]
+    #   processors: [batch]
+    #   exporters: [otlp/jaeger]
+
+    # metrics:
+    #   receivers: [otlp]
+    #   processors: [batch]
+    #   exporters: [prometheus]
+    
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [elasticsearch/logs, file]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [elasticsearch/traces]

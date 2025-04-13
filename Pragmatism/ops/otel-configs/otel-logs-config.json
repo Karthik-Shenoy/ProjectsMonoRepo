@@ -1,0 +1,10 @@
+{
+    "mappings": {
+        "properties": {
+            "@timestamp": { "type": "date" },
+            "severity": { "type": "keyword" },
+            "body": { "type": "text" },
+            "attributes": { "type": "object", "enabled": true }
+        }
+    }
+}
