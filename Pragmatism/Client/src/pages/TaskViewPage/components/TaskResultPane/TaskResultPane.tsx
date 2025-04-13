@@ -25,7 +25,7 @@ export const TaskResultPane: React.FC<{}> = () => {
                             <TableHead>Result</TableHead>
                         </TableHeader>
                         <TableBody>
-                            {taskResult?.testResults.map((result) => {
+                            {taskResult?.testResults?.map((result) => {
                                 return (
                                     <TableRow>
                                         <TableCell className="break-words whitespace-normal">

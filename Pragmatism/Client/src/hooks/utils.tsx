@@ -4,6 +4,7 @@ export enum AppLocation {
     HomePage = "/",
     TasksPage = "/tasks",
     TaskViewPage = "/tasks/:taskId",
+    ProfilePage = "/profile/:userId",
 }
 
 export const useCurrentLocation = () => {

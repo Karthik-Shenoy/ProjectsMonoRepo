@@ -1,0 +1,11 @@
+{
+    "actions": [
+        {
+            "add": {
+                "index": "otel-logs",
+                "alias": "otel-logs-alias",
+                "is_write_index": true
+            }
+        }
+    ]
+}

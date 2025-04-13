@@ -7,10 +7,12 @@ export enum TileType {
     NoData,
 }
 
+export type TileSize = 8 | 16 | 32 | 64 | 96 | 128 | 256
+
 export type AppInfoTileProps = {
     tileType: TileType
     description?: string
-    size: 8 | 16 | 32 | 64 | 96 | 128 | 256
+    size: TileSize
 }
 
 export const AppInfoTile: React.FC<AppInfoTileProps> = ({ tileType, description, size }) => {

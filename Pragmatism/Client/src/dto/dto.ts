@@ -9,6 +9,8 @@ export namespace DTO {
 
     export type TaskSubmitRequest = {
         userName: string;
+        userId: string;
+        taskId: number;
         taskDir: string;
         taskFiles: TaskFile[];
         language: string;
@@ -38,5 +40,15 @@ export namespace DTO {
     export type TaskSubmitResponse = {
         testResults: TestResult[];
         dbgLogs: string;
+    }
+
+    export type User = {
+        id: string,
+        name: string,
+        picture: string
+    }
+
+    export type SolvedTask = {
+        title: string;
     }
 }
