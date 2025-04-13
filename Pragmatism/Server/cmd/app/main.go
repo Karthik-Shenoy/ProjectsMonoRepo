@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	flag.BoolVar(&cmdflags.DevMode, "dev", true, "Run in development mode")
+	flag.BoolVar(&cmdflags.DevMode, "dev", false, "Run in development mode")
 
 	http.HandleFunc("/", middlewares.CorsHandler)
 	auth.InitAuthHandlers()
@@ -23,7 +23,7 @@ func main() {
 	handlers.InitTaskHandlers()
 	handlers.InitUserDataHandlers()
 
-		fmt.Println("Server listening on http://127.0.0.1:3000")
+	fmt.Println("Server listening on http://127.0.0.1:3000")
 	err := http.ListenAndServe(":3000", nil)
 
 	if err != nil {
