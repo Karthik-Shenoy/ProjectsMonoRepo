@@ -3,11 +3,38 @@ package database_service
 import (
 	"database/sql"
 	"fmt"
-	"sync"
+	"pragmatism/internal/apperrors"
+	"pragmatism/internal/services/serviceinjector"
 
 	_ "github.com/lib/pq"
 )
 
+func init() {
+	var factory serviceinjector.FactoryFunction[DatabaseService] = func(args ...any) (*DatabaseService, error) {
+		instance := &DatabaseService{}
+		err := instance.initEnvVariables()
+
+		if err != nil {
+			return nil, err
+		}
+
+		err = instance.connect()
+
+		if err != nil {
+			return nil, err
+		}
+
+		return instance, nil
+	}
+
+	serviceinjector.RegisterService(factory)
+}
+
+func getServiceErrorOrigin(funcName string) string {
+	return "DatabaseService." + funcName
+}
+
+// No connection pooling as of now can become a bottleneck
 type DatabaseService struct {
 	dbConn *sql.DB
 }
@@ -36,9 +63,18 @@ func (db *DatabaseService) connect() error {
 	return nil
 }
 
-func (db *DatabaseService) Query(queryString string) (*sql.Rows, error) {
+func (db *DatabaseService) Query(queryString string) (*sql.Rows, *apperrors.AppError) {
 	rows, err := db.dbConn.Query(queryString)
-	return rows, err
+
+	if err != nil {
+		return nil, apperrors.NewAppError(
+			apperrors.DataBaseService_Retryable_FailedToQueryDatabase,
+			getServiceErrorOrigin("Query"),
+			"Failed to query database : "+err.Error(),
+		)
+	}
+
+	return rows, nil
 }
 
 func (db *DatabaseService) Dispose() {
@@ -47,30 +83,4 @@ func (db *DatabaseService) Dispose() {
 
 func (db *DatabaseService) Prepare(queryString string) (*sql.Stmt, error) {
 	return db.dbConn.Prepare("")
-}
-
-var singletonMutex sync.Mutex
-var singletonInstance *DatabaseService = nil
-
-func GetInstance() (*DatabaseService, error) {
-
-	if singletonInstance == nil {
-		singletonMutex.Lock()
-
-		singletonInstance = &DatabaseService{}
-		err := singletonInstance.initEnvVariables()
-
-		if err != nil {
-			return nil, err
-		}
-
-		err = singletonInstance.connect()
-
-		if err != nil {
-			return nil, err
-		}
-
-		singletonMutex.Unlock()
-	}
-	return singletonInstance, nil
 }

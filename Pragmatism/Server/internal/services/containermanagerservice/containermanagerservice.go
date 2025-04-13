@@ -7,6 +7,8 @@ import (
 	"pragmatism/internal/shared_types"
 	"sync"
 	"time"
+
+	"pragmatism/internal/services/serviceinjector"
 )
 
 type TaskQueue = shared_types.Queue[*contracts.TaskNotifierWrapper]
@@ -20,9 +22,10 @@ type ContainerManagerService struct {
 
 // starts the task loop and distributes the tasks
 //   - if a container is available queue the task
-//   - spawn a new container when
-//   - existing containers are busy and we have space for a new container
-//   - container is un-available
+//   - else spawn a new container when
+//   - if existing containers are busy and we have space for a new container spawn a new one
+//   - if container is un-available spawn a new one
+//   - if all containers are busy kill the least recently used container and spawn a new one
 func (containerMgrService *ContainerManagerService) Start() {
 	go func() {
 		for {
@@ -151,21 +154,17 @@ func (containerMgrService *ContainerManagerService) createAndStartNewContainerFo
 	return newContainer, nil
 }
 
-var instance *ContainerManagerService
-var singletonMutex sync.Mutex
-
-func GetInstance() *ContainerManagerService {
-	singletonMutex.Lock()
-	defer singletonMutex.Unlock()
-
-	if instance == nil {
-		instance = &ContainerManagerService{
+func init() {
+	// register the service in the service injector
+	var factory serviceinjector.FactoryFunction[ContainerManagerService] = func(args ...any) (*ContainerManagerService, error) {
+		instance := &ContainerManagerService{
 			counter:    0,
 			pTaskQueue: shared_types.NewQueue[*contracts.TaskNotifierWrapper](),
 			containers: make([](*Container), 0),
 		}
 		instance.Start()
+		return instance, nil
 	}
 
-	return instance
+	serviceinjector.RegisterService(factory)
 }

@@ -19,17 +19,30 @@ func GetTaskResultFromTestResult(testResult string) []*api.TestResult {
 		if len(sentences) < 3 {
 			continue
 		}
-		firstWord := string([]rune(strings.TrimSpace(sentences[0]))[:4])
+		firstWord := strings.TrimSpace(sentences[0])
+		if len(firstWord) < 1 {
+			continue
+		}
+		firstRune := []rune(firstWord)[0]
 		testResult := &api.TestResult{}
-		if firstWord == FAILURE_WORD {
+		if firstRune == FAILURE_INDICATOR_UNICODE_CHAR {
 			testResult.IsSuccessful = false
 			testResult.TestName = strings.TrimSpace(sentences[2])
 			taskResult = append(taskResult, testResult)
-		} else if firstWord == SUCCESS_WORD {
+		} else if firstRune == SUCCESS_INDICATOR_UNICODE_CHAR {
 			testResult.IsSuccessful = true
 			testResult.TestName = strings.TrimSpace(sentences[2])
 			taskResult = append(taskResult, testResult)
 		}
 	}
 	return taskResult
+}
+
+func IsTaskSolved(taskResult []*api.TestResult) bool {
+	for _, result := range taskResult {
+		if !result.IsSuccessful {
+			return false
+		}
+	}
+	return true
 }

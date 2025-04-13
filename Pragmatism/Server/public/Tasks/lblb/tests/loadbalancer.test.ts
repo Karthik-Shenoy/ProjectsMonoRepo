@@ -27,7 +27,7 @@ describe("Task-Tests:LBLB", () => {
             writeError: vi.fn(),
         };
 
-        backendPool = [{ IPAddr: "192.168.1.2", Port: 8080 }];
+        backendPool = [];
         logSpy = vi.spyOn(loggerService, "log");
         loadbalancer = new Loadbalancer(mockHTTPService, backendPool, loggerService);
     });
@@ -40,7 +40,7 @@ describe("Task-Tests:LBLB", () => {
             payload: "",
         };
 
-        backendPool = [{ IPAddr: "192.168.1.2", Port: 8080 }];
+        backendPool.push({ IPAddr: "192.168.1.2", Port: 8080 });
 
         mockHTTPService.sendRequest.mockResolvedValueOnce({
             status: 200,
@@ -68,6 +68,8 @@ describe("Task-Tests:LBLB", () => {
             method: "POST",
             payload: "data",
         };
+
+        backendPool.push({ IPAddr: "192.168.1.2", Port: 8080 });
 
         const error = new Error("Backend error");
         mockHTTPService.sendRequest.mockRejectedValueOnce(error);
@@ -99,7 +101,12 @@ describe("Task-Tests:LBLB", () => {
         // track requests to backend servers
         const backendServerRequests: { [key: string]: number } = {};
         mockHTTPService.sendRequest.mockImplementation((url, request: Request) => {
-            backendServerRequests[url] = (backendServerRequests[url] || 0) + 1;
+            // match data after http:// and before the first /
+            const backendServerHostNameAndPort = url.match(/http:\/\/([^/]+)/)?.[1];
+            if (!backendServerHostNameAndPort) {
+                throw new Error("Invalid URL");
+            }
+            backendServerRequests[backendServerHostNameAndPort] = (backendServerRequests[backendServerHostNameAndPort] || 0) + 1;
             return Promise.resolve({
                 status: 200,
                 data: "Success",

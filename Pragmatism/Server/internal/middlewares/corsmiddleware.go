@@ -3,9 +3,10 @@ package middlewares
 import "net/http"
 
 func appendAccessControlHeaders(w http.ResponseWriter) {
-	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Origin", GetAllowedOrigin())
 	w.Header().Add("Access-Control-Allow-Methods", "GET")
 	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Add("Access-Control-Allow-Credentials", "true")
 }
 
 func CorsMiddleware(next http.HandlerFunc, allowedMethod string) http.HandlerFunc {

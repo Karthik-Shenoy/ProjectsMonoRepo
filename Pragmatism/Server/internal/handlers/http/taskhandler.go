@@ -12,8 +12,10 @@ import (
 	"pragmatism/internal/middlewares"
 	"pragmatism/internal/services/containermanagerservice"
 	container_manager_contracts "pragmatism/internal/services/containermanagerservice/contracts"
+	"pragmatism/internal/services/serviceinjector"
 
 	tasks_model "pragmatism/internal/models/tasksmodel"
+	users_model "pragmatism/internal/models/usersmodel"
 
 	"strconv"
 	"strings"
@@ -24,12 +26,12 @@ func getServiceErrorOrigin(funcName string) string {
 }
 
 func InitTaskHandlers() {
-	http.HandleFunc("GET /tasks", middlewares.CorsMiddleware(HandleGetTasks, http.MethodGet))
+	http.HandleFunc("GET /tasks", middlewares.CorsMiddleware(handleGetTasks, http.MethodGet))
 	http.HandleFunc("GET /tasks/", middlewares.CorsMiddleware(handleGetTask, http.MethodGet))
 	http.HandleFunc("POST /tasks/", middlewares.CorsMiddleware(handleSubmitTask, http.MethodPost))
 }
 
-func HandleGetTasks(w http.ResponseWriter, req *http.Request) {
+func handleGetTasks(w http.ResponseWriter, req *http.Request) {
 	pathTokens := getPathTokens(req)
 
 	// Check if the path is valid and let other handlers handle it
@@ -37,18 +39,34 @@ func HandleGetTasks(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	problems, err := tasks_model.GetTasks()
+	tasksModelService, appErr := serviceinjector.GetService[tasks_model.TasksModelService]()
 
-	if err != nil {
-		fmt.Println(err)
+	if appErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
+		payload := helpers.LogErrorToTelemetryAndGetPayload(
+			apperrors.NewAppErrorFromLowerLayerError(
+				apperrors.GenericError_Retryable_GenericError,
+				getServiceErrorOrigin("handleGetTasks"),
+				"Failed to create task model service",
+				appErr,
+			),
+		)
+		w.Write(payload)
+		return
+	}
+
+	tasks, appErr := tasksModelService.GetTasks()
+
+	if appErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+		w.Write([]byte(payload))
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	payload, err := json.Marshal(problems)
+	payload, err := json.Marshal(tasks)
 
 	if err != nil {
 		fmt.Println(err)
@@ -78,10 +96,20 @@ func handleGetTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tasks, err := tasks_model.GetTasks()
-	if err != nil {
+	tasksModelService, appErr := serviceinjector.GetService[tasks_model.TasksModelService]()
+
+	if appErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
+		payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+		w.Write(payload)
+		return
+	}
+
+	tasks, appErr := tasksModelService.GetTasks()
+	if appErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+		w.Write([]byte(payload))
 		return
 	}
 
@@ -92,12 +120,12 @@ func handleGetTask(w http.ResponseWriter, req *http.Request) {
 			break
 		}
 	}
-	taskFiles, err := tasks_model.GetTaskFilesForTask(uint32(taskId))
+	taskFiles, appErr := tasksModelService.GetTaskFilesForTask(uint32(taskId))
 
-	if err != nil {
-		fmt.Println("Error getting task files:", err)
+	if appErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
+		payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+		w.Write([]byte(payload))
 		return
 	}
 
@@ -106,8 +134,15 @@ func handleGetTask(w http.ResponseWriter, req *http.Request) {
 	for _, taskFile := range taskFiles {
 		fileContent, err := os.ReadFile("./public/Tasks/" + taskDir + "/src/" + taskFile.FileName)
 		if err != nil {
+			appErr := apperrors.NewAppError(
+				apperrors.TaskHandlers_Retryable_FailedToReadFile,
+				getServiceErrorOrigin("handleGetTask"),
+				"error while reading the file: "+err.Error(),
+			)
+
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal Server Error"))
+			payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+			w.Write([]byte(payload))
 			return
 		}
 		taskFileResponse = append(taskFileResponse, api.TaskFile{
@@ -149,7 +184,6 @@ func handleSubmitTask(w http.ResponseWriter, req *http.Request) {
 	var decodedTask api.TaskSubmitRequest
 	err := json.NewDecoder(req.Body).Decode(&decodedTask)
 	if err != nil {
-		fmt.Println("Error decoding JSON:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Bad Request"))
 		return
@@ -158,25 +192,50 @@ func handleSubmitTask(w http.ResponseWriter, req *http.Request) {
 	appErr := createTaskFolderAndUpdateFiles(&decodedTask)
 	if appErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(appErr.GetHTTPResponseMsg())
+		payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+		w.Write(payload)
+		return
 	}
 
-	containerMgr := containermanagerservice.GetInstance()
+	containerMgr, appErr := serviceinjector.GetService[containermanagerservice.ContainerManagerService]()
+	if appErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+		w.Write(payload)
+	}
 
+	// async await pattern
 	taskCompletionNotifier := make(chan *container_manager_contracts.TaskNotification)
 	containerMgr.QueueTask(container_manager_contracts.WrapTaskWithNotifier(&decodedTask, taskCompletionNotifier))
 	notif := <-taskCompletionNotifier
 
 	if notif.Err != nil {
-		fmt.Println(notif.Err.Err())
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(notif.Err.GetHTTPResponseMsg())
+		payload := helpers.LogErrorToTelemetryAndGetPayload(notif.Err)
+		w.Write(payload)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	fmt.Println("Trace: task results", *(notif.Result))
 	taskResult := GetTaskResultFromTestResult(*(notif.Result))
+
+	if IsTaskSolved(taskResult) {
+		userModelService, appErr := serviceinjector.GetService[users_model.UsersModelService]()
+		if appErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+			w.Write(payload)
+			return
+		}
+
+		appErr = userModelService.UpdateSolvedTask(decodedTask.UserId, strconv.Itoa(decodedTask.TaskId), "")
+		if appErr != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			payload := helpers.LogErrorToTelemetryAndGetPayload(appErr)
+			w.Write(payload)
+			return
+		}
+	}
 
 	payload, err := json.Marshal(api.TaskSubmitResponse{
 		TestResults: taskResult,
@@ -189,13 +248,14 @@ func handleSubmitTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
 }
 
 func createTaskFolderAndUpdateFiles(task *api.TaskSubmitRequest) *apperrors.AppError {
 	fmt.Println("Trace: decoded JSON")
 	// Ensure user folder exists
-	userFolder := ".temp/" + task.UserName + "-" + task.TaskDir
+	userFolder := ".temp/" + task.UserId + "-" + task.TaskDir
 	if err := helpers.CheckOrCreateFolder(userFolder, 0755); err != nil {
 		return apperrors.NewAppError(
 			apperrors.TaskHandler_Retryable_CreateFolderAndUpdateFilesFailed,

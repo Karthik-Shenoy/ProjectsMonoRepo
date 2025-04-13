@@ -3,4 +3,4 @@ $env:GOOS = "windows"
 
 .\scripts\sensitive\SetEnvVariables.ps1
 
-go run .\cmd\app\main.go -debug=true
+go run .\cmd\app\main.go -dev=true
