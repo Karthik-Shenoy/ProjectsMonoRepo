@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CircleX, SquareCheckBig } from "lucide-react"
 import { Typography } from "@src/components/Typography"
 import { AsyncStatusHandlerWrapper } from "../Shared"
+import { DTO } from "@src/dto/dto"
 
 export const TaskResultPane: React.FC<{}> = () => {
     const { taskResultFetchState } = useTaskViewContext();
@@ -14,7 +15,9 @@ export const TaskResultPane: React.FC<{}> = () => {
             <AsyncStatusHandlerWrapper
                 {...taskResultFetchState}
                 loadingStateString="Getting Results..."
-                noDataStateString="Please submit your solution to view results!">
+                noDataStateString="Please submit your solution to view results!"
+                dataEmptyCheckCallback={(data: DTO.TaskSubmitResponse) => data?.testResults?.length === 0}
+            >
                 <>
                     <FlexDiv className="w-full justify-items-start">
                         <Typography variant="subheading" className="">Test Results</Typography>

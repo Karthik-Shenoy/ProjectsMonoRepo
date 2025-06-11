@@ -7,7 +7,7 @@ export enum TileType {
     NoData,
 }
 
-export type TileSize = 8 | 16 | 32 | 64 | 96 | 128 | 256
+export type TileSize = 8 | 16 | 32 | 64 | 96 | 128 | 256;
 
 export type AppInfoTileProps = {
     tileType: TileType
