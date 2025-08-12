@@ -12,14 +12,23 @@ import (
 type FactoryFunction[T any] func(...any) (*T, error)
 type FactoryFunctionLooselyTyped func(...any) (any, error)
 
-var globalServiceRegistryMutex sync.Mutex
-
 type ServiceData[T any] struct {
 	factory      FactoryFunction[T]
 	dependencies []string
 	instance     any
 	serviceMutex *sync.Mutex
 }
+
+type GenericServiceData struct {
+	factory      FactoryFunctionLooselyTyped
+	dependencies []string
+	instance     any
+	serviceMutex *sync.Mutex
+}
+
+var globalServiceRegistryMutex sync.Mutex
+
+var services = make(map[string]*GenericServiceData)
 
 func (data *ServiceData[T]) copyToGenericServiceData() *GenericServiceData {
 	return &GenericServiceData{
@@ -38,15 +47,6 @@ func StronglyTypedServiceDataFromGenericServiceData[T any](genericData *GenericS
 		serviceMutex: genericData.serviceMutex,
 	}
 }
-
-type GenericServiceData struct {
-	factory      FactoryFunctionLooselyTyped
-	dependencies []string
-	instance     any
-	serviceMutex *sync.Mutex
-}
-
-var services = make(map[string]*GenericServiceData)
 
 func getWrappedFactoryLooselyTyped[T any](specificFactory FactoryFunction[T]) FactoryFunctionLooselyTyped {
 	return func(a ...any) (any, error) {
@@ -188,7 +188,7 @@ func GetService[T any]() (*T, *apperrors.AppError) {
 }
 
 // usually recursion is a bad idea in a coroutine based environment, due to stack overflow issues
-// but the depth is really small, so we can do with it more over return type is void takes up only a byte space
+// but the depth is really small, so we can go with it
 func dfsInstantiate(rootServiceName string) any {
 
 	service, ok := getCachedServiceDataGeneric(rootServiceName)

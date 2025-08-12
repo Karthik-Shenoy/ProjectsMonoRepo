@@ -1,0 +1,11 @@
+{
+  "id": "active-recall-plugin",
+  "name": "Active Recall Plugin",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "An Obsidian plugin for active recall and spaced repetition",
+  "author": "Your Name",
+  "authorUrl": "https://github.com/yourusername",
+  "fundingUrl": "https://buymeacoffee.com/yourusername",
+  "isDesktopOnly": false
+}

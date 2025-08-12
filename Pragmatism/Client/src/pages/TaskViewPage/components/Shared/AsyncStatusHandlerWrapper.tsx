@@ -5,13 +5,24 @@ import { FlexDiv, FlexItem } from "@src/components/FlexBox"
 import BasicSpinner from "@src/components/Loaders/BasicSpinner"
 import { Typography } from "@src/components/Typography"
 
+
 export type AsyncStatusHandlerWrapperStringProps = {
     loadingStateString: string;
     noDataStateString: string;
     errorStateString?: string;
 }
 
-export const AsyncStatusHandlerWrapper: React.FC<React.PropsWithChildren<(TaskResultFetchState | TaskDataFetchState) & AsyncStatusHandlerWrapperStringProps>> =
+export type AsyncStatusHandlerWrapperProps = {
+    dataEmptyCheckCallback?: (data: any) => boolean;
+}
+
+export const AsyncStatusHandlerWrapper: React.FC<
+    React.PropsWithChildren<
+        (TaskResultFetchState | TaskDataFetchState)
+        & AsyncStatusHandlerWrapperStringProps
+        & AsyncStatusHandlerWrapperProps
+    >
+> =
     ({ isFetching, error, data, children, loadingStateString, noDataStateString, errorStateString }) => {
         if (isFetching) {
             return (

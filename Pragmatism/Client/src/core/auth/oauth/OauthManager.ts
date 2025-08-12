@@ -39,7 +39,7 @@ export class OauthManager {
                         userName: name,
                         userProfilePictureUrl: picture
                     }) /* onAuthComplete */,
-                reject
+                reject /* onAuthFailure */
             );
             this.authSetTimeoutHandle = setTimeout(() => reject, AUTH_TIMEOUT_MS);
         });
