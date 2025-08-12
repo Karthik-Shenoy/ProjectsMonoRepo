@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "module": "ESNext",
+        "target": "ES6",
+        "allowJs": true,
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "importHelpers": true,
+        "declaration": true,
+        "outDir": "./dist",
+        "isolatedModules": true,
+        "strict": true,
+        "lib": ["DOM", "ES6"],
+        "jsx": "react",
+
+        "paths": {
+            "@shadcn/*": ["./shadcn/*"]
+        }
+    },
+    "include": ["src/**/*.ts", "src/**/*.tsx"],
+    "exclude": ["./node_modules"]
+}
