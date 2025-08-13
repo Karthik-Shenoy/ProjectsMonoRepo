@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.8
--- Dumped by pg_dump version 16.8
+-- Dumped from database version 16.9
+-- Dumped by pg_dump version 16.9
 
--- Started on 2025-04-14 00:52:53
+-- Started on 2025-08-13 21:02:50
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -33,7 +33,8 @@ CREATE TABLE public.tasks (
     description text NOT NULL,
     num_solves integer NOT NULL,
     markdown_url text,
-    task_dir text
+    task_dir text,
+    language text
 );
 
 
@@ -137,6 +138,8 @@ COPY public.solved_tasks (userid, taskid, solution, solved_at) FROM stdin;
 COPY public.task_files (task_id, file_name, file_type) FROM stdin;
 1	loadbalancer.ts	1
 1	contracts.ts	0
+2	promise.ts	1
+2	contracts.ts	0
 \.
 
 
@@ -146,8 +149,9 @@ COPY public.task_files (task_id, file_name, file_type) FROM stdin;
 -- Data for Name: tasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tasks (id, title, description, num_solves, markdown_url, task_dir) FROM stdin;
-1	Load balancing, load balancers!	Modern distributed applications require dynamic scaling to handle variable workloads efficiently. implement automatic scaling with service discovery mechanisms, continuous configuration updates, and intelligent load balancing to ensure maximum reliability and optimal resource utilization during traffic fluctuations.	0	/PROBLEMS/LBLBS	lblb
+COPY public.tasks (id, title, description, num_solves, markdown_url, task_dir, language) FROM stdin;
+1	Load balancing, load balancers!	Modern distributed applications require dynamic scaling to handle variable workloads efficiently. implement automatic scaling with service discovery mechanisms, continuous configuration updates, and intelligent load balancing to ensure maximum reliability and optimal resource utilization during traffic fluctuations.	0	/problem-descriptions/lblbs.md	lblb	typescript
+2	Promise From Scratch	Implement a custom JavaScript Promise that mimics the native behavior, including then, catch, and finally, as well as asynchronous resolution and chaining.	0	/problem-descriptions/promise.md	promise	typescript
 \.
 
 
@@ -159,6 +163,7 @@ COPY public.tasks (id, title, description, num_solves, markdown_url, task_dir) F
 
 COPY public.users (id, name, email, solves, picture) FROM stdin;
 103094514328351734590	Sadashiva Shenoy	karnamic@gmail.com	0	https://lh3.googleusercontent.com/a/ACg8ocJxNt1weQUC2VWXwrwAFNHHj_igTBhsdzMjp6ma-AUzX0RL_j8=s96-c
+101314336793142375937	Karthik Shenoy	karthikshenoy2001@gmail.com	0	https://lh3.googleusercontent.com/a/ACg8ocLvvxz6Hvo6H4MTa5kt1cTH7DtgQcPd1yZgFF9faXIQMUsCgU5fgA=s96-c
 \.
 
 
@@ -168,7 +173,7 @@ COPY public.users (id, name, email, solves, picture) FROM stdin;
 -- Name: problems_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.problems_id_seq', 1, true);
+SELECT pg_catalog.setval('public.problems_id_seq', 2, true);
 
 
 --
@@ -225,7 +230,7 @@ ALTER TABLE ONLY public.solved_tasks
     ADD CONSTRAINT fk_user FOREIGN KEY (userid) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-04-14 00:52:57
+-- Completed on 2025-08-13 21:02:54
 
 --
 -- PostgreSQL database dump complete
