@@ -4,6 +4,7 @@ export namespace DTO {
         title: string;
         description: string;
         numSolves: number;
+        markdownUrl: string;
         taskDir: string;
     };
 
@@ -15,10 +16,10 @@ export namespace DTO {
         taskFiles: TaskFile[];
         language: string;
     };
-    
+
     export enum FileType {
         LIB = 0,
-        TASK = 1
+        TASK = 1,
     }
 
     export type TaskFile = {
@@ -30,6 +31,8 @@ export namespace DTO {
     export type GetTaskResponse = {
         taskDir: string;
         taskFiles: TaskFile[];
+        markdownUrl: string;
+        language: string;
     };
 
     export type TestResult = {
@@ -40,15 +43,15 @@ export namespace DTO {
     export type TaskSubmitResponse = {
         testResults: TestResult[];
         dbgLogs: string;
-    }
+    };
 
     export type User = {
-        id: string,
-        name: string,
-        picture: string
-    }
+        id: string;
+        name: string;
+        picture: string;
+    };
 
     export type SolvedTask = {
         title: string;
-    }
+    };
 }

@@ -15,12 +15,14 @@ func init() {
 		err := instance.initEnvVariables()
 
 		if err != nil {
+			fmt.Println("DBService Failed to Init Env Vars: ", err.Error())
 			return nil, err
 		}
 
 		err = instance.connect()
 
 		if err != nil {
+			fmt.Println("DBService Failed to connect V2: ", err.Error())
 			return nil, err
 		}
 
@@ -56,6 +58,7 @@ func (db *DatabaseService) connect() error {
 	dbConn, err := sql.Open("postgres", dbConnString)
 
 	if err != nil {
+		fmt.Println("DBService Failed to connect: ", err.Error())
 		return err
 	}
 

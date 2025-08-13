@@ -41,10 +41,6 @@ export const useTaskData = (taskId: string | undefined) => {
         useQuery({
             queryKey: ["tasks", taskId],
             queryFn: async () => {
-                if (taskData) {
-                    return taskData
-                }
-
                 const response = await fetch(`${__API_URL__}/tasks/${taskId}`);
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
@@ -52,6 +48,7 @@ export const useTaskData = (taskId: string | undefined) => {
                 let getTaskResponse = (await response.json()) as DTO.GetTaskResponse;
                 return getTaskResponse;
             },
+            initialData: taskData,
         })
 
     React.useEffect(() => {

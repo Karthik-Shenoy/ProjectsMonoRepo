@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"pragmatism/api"
+	cmdflags "pragmatism/internal/cmdflags"
 	"strings"
 )
 
@@ -71,6 +72,11 @@ func (e *AppError) GetHTTPResponseMsg() ([]byte, *AppError) {
 
 	response := api.HttpHandlerErrorResponse{
 		ShouldRetry: true,
+		DebugError:  "",
+	}
+
+	if cmdflags.IsDevMode() {
+		response.DebugError = e.String()
 	}
 
 	for itrAppErrors != nil {

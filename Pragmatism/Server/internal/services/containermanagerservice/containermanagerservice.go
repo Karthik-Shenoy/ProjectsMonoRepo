@@ -61,7 +61,7 @@ func (containerMgrService *ContainerManagerService) Start() {
 			var optimalContainer *Container = nil
 			var minTasks uint16 = (1<<16 - 1)
 			for _, container := range containerMgrService.containers {
-				if container.TaskDir == task.PTask.TaskDir && container.CNumQueuedTasks() < minTasks {
+				if container.TaskLanguage == task.PTask.Language && container.CNumQueuedTasks() < minTasks {
 					minTasks = container.CNumQueuedTasks()
 					optimalContainer = container
 				}
@@ -145,7 +145,7 @@ func (containerMgrService *ContainerManagerService) pruneFreeContainers() *apper
 func (containerMgrService *ContainerManagerService) createAndStartNewContainerForTask(task *contracts.TaskNotifierWrapper) (*Container, *apperrors.AppError) {
 	fmt.Println("Trace: Creating a new container")
 
-	newContainer := NewContainer(task.PTask.TaskDir, containerMgrService.counter)
+	newContainer := NewContainer(task.PTask.TaskDir, task.PTask.Language, containerMgrService.counter)
 	containerMgrService.containers = append(containerMgrService.containers, newContainer)
 	containerMgrService.counter++
 	if appErr := newContainer.Start(); appErr != nil {

@@ -15,14 +15,14 @@ type Container struct {
 	isRunningTask bool
 	// task-container-*
 	ContainerName       string
-	TaskDir             string
+	TaskLanguage        string
 	shouldKillContainer bool
 }
 
 // Runs the container and starts the task loop
 func (container *Container) Start() *apperrors.AppError {
 	container.shouldKillContainer = false
-	appErr := RunContainer(container.TaskDir, container.ContainerName)
+	appErr := RunContainer(container.TaskLanguage, container.ContainerName)
 	fmt.Println("container.Start()")
 	if appErr != nil {
 		fmt.Println(appErr.Err())
@@ -68,7 +68,7 @@ func (container *Container) Start() *apperrors.AppError {
 			fmt.Println("Trace: Copied files to container")
 			// copy files from the task into container run them and notify the enqueuer
 			userFilesDirForTask := getUserFilesTempDirNameForTask(task.PTask.UserId, task.PTask.TaskDir)
-			appErr = copyFilesToContainer(userFilesDirForTask, container.ContainerName, TASK_DEST_PATH)
+			appErr = copyFilesToContainer(userFilesDirForTask, container.ContainerName, GetTaskDestPath(task.PTask.TaskDir))
 			if appErr != nil {
 				task.ChanNotifier <- &contracts.TaskNotification{
 					Result: nil,
@@ -80,7 +80,7 @@ func (container *Container) Start() *apperrors.AppError {
 
 			fmt.Println("Trace: Running tests")
 			// run tests
-			result := helpers.RunCmdAndGetStdFiles("docker", "exec", container.ContainerName, "npm", "run", "test")
+			result := helpers.RunCmdAndGetStdFiles("docker", "exec", container.ContainerName, "npm", "run", "test", "--folder="+task.PTask.TaskDir)
 			if result.Err != nil {
 				stdErrMsg := ""
 
@@ -166,11 +166,11 @@ func (container *Container) Kill() *apperrors.AppError {
 	return nil
 }
 
-func NewContainer(taskDir string, suffixCnt uint64) *Container {
+func NewContainer(taskDir string, taskLanguage string, suffixCnt uint64) *Container {
 	return &Container{
 		pTasksQueue:   shared_types.NewQueue[*contracts.TaskNotifierWrapper](),
-		ContainerName: GetContainerNameForTask(taskDir + fmt.Sprintf("%d", suffixCnt)),
-		TaskDir:       taskDir,
+		ContainerName: GetContainerNameForTask(taskLanguage + fmt.Sprintf("%d", suffixCnt)),
+		TaskLanguage:  taskLanguage,
 		isRunningTask: false,
 	}
 }

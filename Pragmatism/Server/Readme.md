@@ -18,9 +18,11 @@
 
 
 ### Creating new tasks
+- we have moved from a `container per task` to `container per language` architecture, the 
 - To add new tasks create a problem statement, and decide on the tests
-    - create the image with `task-image` prefix in it's name
-    - create a docker file for the task, (don't mount volumes), we use a `copy-overwrite` approach in the containers on submit 
+    - create a folder with all the dependencies node modules and stuff, in the `./public/<language_name>/Tasks` folder along with the tests, and then build the container image
+- create a docker file for the task, (don't mount volumes), we use a `copy-overwrite` approach in the containers on submit 
+
 
 - tests for `typescript`
     - Initially we planned to use jest for tests, but it was too heavy for our simple use-case (more over the vanilla/babel build took most of the time)

@@ -39,9 +39,9 @@ export const TasksPage: React.FC<{}> = () => {
                             Problems
                         </Typography>
                     </FlexItem>
-                    <GridDiv className="lg:grid-cols-2 grid-cols-4 w-full h-full pb-4">
+                    <GridDiv className="lg:grid-cols-3 grid-cols-2 w-full h-full pb-4 space-x-1">
                         {isFetching || isPending || error != null ?
-                            Array.from({ length: 1 }).map(() => (
+                            Array.from({ length: 2 }).map(() => (
                                 <GridItem>
                                     <ProblemCardSkeleton />
                                 </GridItem>

@@ -130,7 +130,7 @@ func (dbCache *DBCacheService) Query(query string) ([]byte, *apperrors.AppError)
 
 	dbCache.cache[query] = &CacheRecord{
 		Data:      payload,
-		TTL:       3600,
+		TTL:       CacheItemTTL(),
 		CreatedAt: helpers.GetCurrentUnixTime(),
 	}
 

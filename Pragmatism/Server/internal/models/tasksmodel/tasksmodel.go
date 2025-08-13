@@ -19,6 +19,7 @@ type Task struct {
 	NumSolves   uint32 `json:"numSolves"`   // Number of solves for the problem
 	MarkdownUrl string `json:"markdownUrl"` // URL to the markdown file for the problem
 	TaskDir     string `json:"taskDir"`     // Folder for the container
+	Language    string `json:"language"`    // Programming language for the task
 }
 
 type TaskFile struct {
@@ -35,7 +36,7 @@ func (mdl TasksModelService) GetTasks() ([]Task, *apperrors.AppError) {
 
 	problems := make([]Task, 0)
 
-	payload, appErr := mdl.dbCacheInstance.Query("SELECT id, title, description, num_solves, markdown_url, task_dir FROM tasks")
+	payload, appErr := mdl.dbCacheInstance.Query("SELECT id, title, description, num_solves, markdown_url, task_dir, language FROM tasks")
 
 	if appErr != nil {
 		return problems, apperrors.NewAppError(
