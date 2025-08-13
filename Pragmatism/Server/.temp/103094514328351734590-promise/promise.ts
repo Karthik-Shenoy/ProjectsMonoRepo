@@ -1,11 +1,4 @@
-import { LoggerService } from "./logger";
-
-enum FutureState {
-    Pending,
-    Resolved,
-    Rejected,
-    Error,
-}
+import { ILoggerService, FutureState } from "./contracts";
 
 export class Future<T> {
     private futureState: FutureState;
@@ -19,7 +12,7 @@ export class Future<T> {
     private chainedOnErrorCallback: ((error: Error) => void) | undefined;
 
     // do not edit
-    public static loggerService: LoggerService;
+    public static loggerService: ILoggerService;
 
     constructor(executorFn: (resolve: (result: T) => void, reject: (reason: any) => void) => void) {
         this.futureState = FutureState.Pending;

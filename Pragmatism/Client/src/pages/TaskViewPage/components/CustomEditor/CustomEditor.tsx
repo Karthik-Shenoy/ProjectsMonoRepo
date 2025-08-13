@@ -29,9 +29,9 @@ export const CustomEditor: React.FC<{}> = () => {
         taskDir,
         setTaskResultFetchState,
         setTaskData,
-        setJudgePanelTab
+        setJudgePanelTab,
     } = useTaskViewContext();
-    
+
     const { isFetching: isFetchingTaskData, data: taskFetchData } = taskDataFetchState;
     const taskFiles = taskFetchData?.taskFiles;
 
@@ -80,7 +80,7 @@ export const CustomEditor: React.FC<{}> = () => {
                 },
             ],
             taskDir: taskDir || "",
-            language: ""
+            language: taskDataFetchState.data?.language || ""
         }
 
         setTaskResultFetchState({

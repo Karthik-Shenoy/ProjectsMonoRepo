@@ -16,7 +16,9 @@ type TaskSubmitRequest struct {
 type GetTaskResponse struct {
 	TaskDir string `json:"taskDir"` // Unique identifier for the task
 	// TaskFiles contains the files related to the task
-	TaskFiles []TaskFile `json:"taskFiles"` // List of files related to the task
+	TaskFiles   []TaskFile `json:"taskFiles"`   // List of files related to the task
+	MarkdownUrl string     `json:"markdownUrl"` // Markdown content url for the task
+	Language    string     `json:"language"`    // Programming language for the task
 }
 
 const (
@@ -41,7 +43,8 @@ type TaskSubmitResponse struct {
 }
 
 type HttpHandlerErrorResponse struct {
-	ShouldRetry bool `json:"shouldRetry"`
+	ShouldRetry bool   `json:"shouldRetry"`
+	DebugError  string `json:"debugError"`
 }
 
 type SolvedTask struct {

@@ -53,8 +53,8 @@ func IsContainerRunningForTask(containerName string) (bool, *apperrors.AppError)
 	return true, nil
 }
 
-func RunContainer(taskDir, containerName string) *apperrors.AppError {
-	imageName := GetImageNameForTask(taskDir)
+func RunContainer(imageNameSuffix, containerName string) *apperrors.AppError {
+	imageName := GetImageNameForTask(imageNameSuffix)
 	runCmdResult := helpers.RunCmdAndGetStdFiles("docker", "run", "-d", "--name", containerName, imageName)
 
 	if runCmdResult.Err != nil {
@@ -68,7 +68,8 @@ func RunContainer(taskDir, containerName string) *apperrors.AppError {
 			apperrors.ContainerManagerService_Retryable_ContainerFailedToStart,
 			getServiceErrorOrigin("RunContainer"),
 			fmt.Sprint(
-				"Run Command  failed for docker run command: ",
+				"Run Command  failed for docker run command: container name = ", containerName,
+				", image name:", imageName,
 				", errorInfo:", errorInfo,
 				"err:", runCmdResult.Err.Error()),
 		)
@@ -78,7 +79,7 @@ func RunContainer(taskDir, containerName string) *apperrors.AppError {
 }
 
 func ReadDebugLogsFromContainer(containerName string) (*string, *apperrors.AppError) {
-	cmdResult := helpers.RunCmdAndGetStdFiles("docker", "exec", containerName, "cat", LOG_PATH)
+	cmdResult := helpers.RunCmdAndGetStdFiles("docker", "exec", containerName, "cat", LOG_FILE_PATH)
 
 	if cmdResult.Err != nil {
 		errMsg := ""
@@ -95,12 +96,12 @@ func ReadDebugLogsFromContainer(containerName string) (*string, *apperrors.AppEr
 	return cmdResult.StdOut, nil
 }
 
-func GetContainerNameForTask(taskDir string) string {
-	return CONTAINER_NAME_PREFIX + taskDir
+func GetContainerNameForTask(taskLanguage string) string {
+	return CONTAINER_NAME_PREFIX + taskLanguage
 }
 
-func GetImageNameForTask(taskDir string) string {
-	return IMAGE_NAME_PREFIX + taskDir
+func GetImageNameForTask(taskLanguage string) string {
+	return IMAGE_NAME_PREFIX + taskLanguage
 }
 
 func getUserFilesTempDirNameForTask(userName string, taskDir string) string {

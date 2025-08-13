@@ -113,10 +113,10 @@ func handleGetTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	taskDir := ""
+	var requestedTask *tasks_model.Task = nil
 	for _, task := range tasks {
 		if int(task.Id) == taskId {
-			taskDir = task.TaskDir
+			requestedTask = &task
 			break
 		}
 	}
@@ -132,7 +132,8 @@ func handleGetTask(w http.ResponseWriter, req *http.Request) {
 	taskFileResponse := make([]api.TaskFile, 0)
 
 	for _, taskFile := range taskFiles {
-		fileContent, err := os.ReadFile("./public/Tasks/" + taskDir + "/src/" + taskFile.FileName)
+		fmtDirPart := fmt.Sprintf("problems-%s", requestedTask.Language)
+		fileContent, err := os.ReadFile("./public/Tasks/" + fmtDirPart + "/" + requestedTask.TaskDir + "/src/" + taskFile.FileName)
 		if err != nil {
 			appErr := apperrors.NewAppError(
 				apperrors.TaskHandlers_Retryable_FailedToReadFile,
@@ -152,9 +153,17 @@ func handleGetTask(w http.ResponseWriter, req *http.Request) {
 		})
 	}
 
+	if requestedTask == nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Task not found"))
+		return
+	}
+
 	getTaskResponse := api.GetTaskResponse{
-		TaskDir:   taskDir,
-		TaskFiles: taskFileResponse,
+		TaskDir:     requestedTask.TaskDir,
+		TaskFiles:   taskFileResponse,
+		MarkdownUrl: requestedTask.MarkdownUrl,
+		Language:    requestedTask.Language,
 	}
 
 	payload, err := json.Marshal(getTaskResponse)

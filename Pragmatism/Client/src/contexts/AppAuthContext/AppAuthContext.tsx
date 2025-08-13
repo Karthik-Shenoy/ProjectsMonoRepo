@@ -39,7 +39,7 @@ export const AppAuthContextProvider: React.FC<React.PropsWithChildren> = ({ chil
                         }
                     })
                 if (!response.ok) {
-                    throw new Error(STATUS_CODE_PREFIX+ response.status)
+                    throw new Error(STATUS_CODE_PREFIX + response.status)
                 }
                 let user = await response.json() as DTO.User
                 return user
