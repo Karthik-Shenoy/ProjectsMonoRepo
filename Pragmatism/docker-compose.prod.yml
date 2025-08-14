@@ -1,12 +1,9 @@
+version: "3.9"
+
 services:
   api:
     image: ghcr.io/karthik-shenoy/projects-mono-repo/pragmatism-api:latest
     container_name: pragmatism-api
-    working_dir: /app
-    volumes:
-      - ./Server/bin/PragmatismApp:/app/PragmatismApp:ro
-      - ./Server/public:/app/public:ro
-    command: ["/bin/sh", "-c", "cp /app/PragmatismApp /tmp/PragmatismApp && chmod +x /tmp/PragmatismApp && /tmp/PragmatismApp"]
     expose:
       - "3000"
     restart: unless-stopped
@@ -17,17 +14,5 @@ services:
     depends_on:
       - api
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      # Built SPA output folder from Vite/React
-      - ./Client/dist:/var/www/dist_pragmatism:ro
-      # Prod nginx with HTTP->HTTPS redirect and TLS
-      - ./ops/nginx/pragmatism_app_nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      # Mount certs issued on the VM (Let's Encrypt or similar)
-      - ${CERTS_HOST_PATH:-/etc/letsencrypt}:/etc/letsencrypt:ro
+      - "8080:80"
     restart: unless-stopped
-
-networks:
-  default:
-    name: pragmatism-net
