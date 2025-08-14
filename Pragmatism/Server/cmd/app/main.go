@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	flag.BoolVar(&cmdflags.DevMode, "dev", true, "Run in development mode")
+	flag.BoolVar(&cmdflags.DevMode, "dev", false, "Run in development mode")
 	flag.Parse()
 
 	fmt.Println("Starting server... with dev flag:", cmdflags.DevMode)
