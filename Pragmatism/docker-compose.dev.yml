@@ -1,0 +1,32 @@
+services:
+  api:
+    image: alpine:3.20
+    container_name: pragmatism-api
+    working_dir: /app
+    # NOTE: Ensure the binary below is a Linux build (e.g., GOOS=linux GOARCH=amd64)
+    volumes:
+      - ./Server/bin/PragmatismApp:/app/PragmatismApp:ro
+      - ./Server/public:/app/public:ro
+  # Copy binary to writable path, chmod, then run (mount is read-only)
+    command: ["/bin/sh", "-c", "cp /app/PragmatismApp /tmp/PragmatismApp && chmod +x /tmp/PragmatismApp && /tmp/PragmatismApp"]
+    expose:
+      - "3000"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: pragmatism-nginx
+    depends_on:
+      - api
+    ports:
+      - "8080:80"  # Dev over HTTP
+    volumes:
+      # Built SPA output folder from Vite/React
+      - ./Client/dist:/var/www/dist_pragmatism:ro
+      # Dev nginx (HTTP + SPA fallback)
+      - ./ops/nginx/pragmatism_app_nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+networks:
+  default:
+    name: pragmatism-net
