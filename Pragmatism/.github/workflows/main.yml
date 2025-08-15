@@ -45,7 +45,6 @@ jobs:
             git pull origin main
             git fetch origin pragmatism_master
             git checkout pragmatism_master
-
             
 
             # Login to GHCR to pull private images

@@ -6,8 +6,6 @@ services:
     container_name: pragmatism-api
     ports:
       - "3000:3000"   # Host needs this for Nginx proxy_pass http://localhost:3000
-    env_file:
-      - ./ops/env/api.env
     volumes:
       - /etc/environment:/etc/environment:ro
     command: sh -c "source /etc/environment && mkdir -p /app/.temp"
