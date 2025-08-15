@@ -48,9 +48,8 @@ jobs:
             
 
             # Login to GHCR to pull private images
-            if [ -n "${GHCR_TOKEN}" ] && [ -n "${GHCR_USERNAME}" ]; then
-              echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
-            fi
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+            
 
             # Pull and restart services (API will load env from env_file)
             docker compose -f "$COMPOSE_FILE" pull
