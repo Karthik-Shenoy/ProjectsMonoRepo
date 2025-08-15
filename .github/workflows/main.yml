@@ -56,7 +56,7 @@ jobs:
             docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
 
             # Reload Nginx (host reverse proxy to localhost:8080 and :3000)
-            sudo -n systemctl reload nginx || sudo -n systemctl restart nginx
+            sudo -n systemctl restart nginx
           EOF
 
       - name: Deployment Complete
