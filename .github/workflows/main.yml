@@ -38,7 +38,7 @@ jobs:
           ssh -tt "${VM_USER}@${VM_HOST}" <<EOF
             set -euo pipefail
 
-            REPO_DIR="/~/git_repos/ProjectsMonoRepo"
+            REPO_DIR="$HOME/git_repos/ProjectsMonoRepo"
             COMPOSE_FILE="$REPO_DIR/Pragmatism/docker-compose.prod.yml"
 
             # Pull latest code and switch to deployment branch
