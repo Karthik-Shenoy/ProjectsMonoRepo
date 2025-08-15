@@ -35,8 +35,7 @@ jobs:
           # Encode the env file content to preserve newlines safely
           export SCRIPT_B64="$(printf '%s' "${SET_ENV_SCRIPT}" | base64 -w0)"
 
-          ssh -tt "${VM_USER}@${VM_HOST}" <<EOF
-            set -euo pipefail
+          ssh "${VM_USER}@${VM_HOST}" <<EOF
 
             export REPO_DIR="$HOME/git_repos/ProjectsMonoRepo"
             export COMPOSE_FILE="$REPO_DIR/Pragmatism/docker-compose.prod.yml"
