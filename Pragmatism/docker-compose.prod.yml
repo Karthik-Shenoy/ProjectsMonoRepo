@@ -4,8 +4,10 @@ services:
   api:
     image: ghcr.io/karthik-shenoy/projects-mono-repo/pragmatism-api:latest
     container_name: pragmatism-api
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"   # Host needs this for Nginx proxy_pass http://localhost:3000
+    env_file:
+      - ./ops/env/api.env
     restart: unless-stopped
 
   client:
@@ -16,3 +18,12 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+
+  db:
+    image: ghcr.io/karthik-shenoy/projects-mono-repo/pragmatism-db:latest
+    container_name: pragmatism-db
+    restart: unless-stopped
+
+networks:
+  default:
+    name: pragmatism-net
