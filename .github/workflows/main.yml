@@ -1,16 +1,20 @@
-name: Deploy Vite React & Go Backend
+name: Deploy Pragmatism (Docker)
 
 on:
   push:
     branches:
       - '*'
 
+concurrency:
+  group: pragmatism-deploy
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout (for workflow context only)
         uses: actions/checkout@v4
 
       - name: Setup SSH Key
@@ -20,44 +24,46 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Pull Latest Changes And switch to prgmatis_master branch
+      - name: Deploy via Docker Compose on VM
+        env:
+          VM_HOST: ${{ secrets.VM_HOST }}
+          VM_USER: ${{ secrets.VM_USER_NAME }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          SET_ENV_SCRIPT: ${{ secrets.SET_ENV_SCRIPT }} # Expect KEY=VALUE lines
         run: |
-          ssh ${{ secrets.VM_USER_NAME }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd ~/git_repos/ProjectsMonoRepo
+          # Encode the env file content to preserve newlines safely
+          SCRIPT_B64="$(printf '%s' "${SET_ENV_SCRIPT}" | base64 -w0)"
+
+          ssh "${VM_USER}@${VM_HOST}" <<EOF
+            set -euo pipefail
+
+            REPO_DIR="~/git_repos/ProjectsMonoRepo"
+            COMPOSE_FILE="~/git_repos/ProjectsMonoRepo/Pragmatism/docker-compose.prod.yml"
+
+            # Pull latest code and switch to deployment branch
+            cd "\$REPO_DIR"
             git pull origin main
             git fetch origin pragmatism_master
             git checkout pragmatism_master
-          EOF
 
-      - name: Copy Dist Files to Web Root
-        run: |
-          ssh ${{ secrets.VM_USER_NAME }}@${{ secrets.VM_HOST }} << 'EOF'
-            sudo cp -r ~/git_repos/ProjectsMonoRepo/Pragmatism/Client/dist/* /var/www/dist_pragmatism
-          EOF
+            # Materialize env file for the API container
+            ENV_DIR="\$REPO_DIR/Pragmatism/ops/env"
+            mkdir -p "\$ENV_DIR"
+            echo "${SCRIPT_B64}" | base64 -d > "\$ENV_DIR/api.env"
 
-      - name: Decode and Se
-        run: |
-          
-      
-      - name: Run Go Backend
-        run: |
-          ssh ${{ secrets.VM_USER_NAME }}@${{ secrets.VM_HOST }} << 'EOF'
-            sudo kill -9 $(sudo lsof -t -i:3000) || true
-            
-            cp ~/git_repos/ProjectsMonoRepo/Pragmatism/Server/bin/PragmatismApp ~/hosted/Pragmatism
-            cp -r ~/git_repos/ProjectsMonoRepo/Pragmatism/Server/public ~/hosted/Pragmatism
-            cd ~/hosted/Pragmatism
-            sudo mkdir ".temp"
-            source /etc/environment
-            chmod +x PragmatismApp
-            nohup ./PragmatismApp > nohup.out 2>&1 &
-          EOF
+            # Login to GHCR to pull private images
+            if [ -n "${GHCR_TOKEN}" ] && [ -n "${GHCR_USERNAME}" ]; then
+              echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+            fi
 
-      - name: Restart Nginx
-        run: |
-          ssh ${{ secrets.VM_USER_NAME }}@${{ secrets.VM_HOST }} << 'EOF'
-            sudo systemctl restart nginx
+            # Pull and restart services (API will load env from env_file)
+            docker compose -f "\$COMPOSE_FILE" pull
+            docker compose -f "\$COMPOSE_FILE" up -d --remove-orphans
+
+            # Reload Nginx (host reverse proxy to localhost:8080 and :3000)
+            sudo systemctl reload nginx || sudo systemctl restart nginx
           EOF
 
       - name: Deployment Complete
-        run: echo "Deployment finished successfully!"
+        run: echo "Deployment finished successfully."
