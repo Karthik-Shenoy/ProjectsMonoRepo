@@ -35,11 +35,11 @@ jobs:
           # Encode the env file content to preserve newlines safely
           export SCRIPT_B64="$(printf '%s' "${SET_ENV_SCRIPT}" | base64 -w0)"
 
-          ssh -tt "${VM_USER}@${VM_HOST}" <<EOF
+          ssh -tt "${VM_USER}@${VM_HOST}" "SCRIPT_B64='${SCRIPT_B64}' GHCR_TOKEN='${GHCR_TOKEN}' GHCR_USERNAME='${GHCR_USERNAME}' bash -se" << 'EOF'
             set -euo pipefail
 
-            export REPO_DIR="$HOME/git_repos/ProjectsMonoRepo"
-            export COMPOSE_FILE="$REPO_DIR/Pragmatism/docker-compose.prod.yml"
+            REPO_DIR="$HOME/git_repos/ProjectsMonoRepo"
+            COMPOSE_FILE="$REPO_DIR/Pragmatism/docker-compose.prod.yml"
 
             # Pull latest code and switch to deployment branch
             cd "$REPO_DIR"
@@ -48,7 +48,7 @@ jobs:
             git checkout pragmatism_master
 
             # Materialize env file for the API container
-            export ENV_DIR="$REPO_DIR/Pragmatism/ops/env"
+            ENV_DIR="$REPO_DIR/Pragmatism/ops/env"
             mkdir -p "$ENV_DIR"
             echo "${SCRIPT_B64}" | base64 -d > "$ENV_DIR/api.env"
 
