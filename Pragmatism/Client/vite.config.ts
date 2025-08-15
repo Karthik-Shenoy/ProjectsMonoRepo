@@ -14,9 +14,10 @@ export default defineConfig(({ mode }) => ({
     },
     define: {
         __API_URL__: JSON.stringify(
+            // host-name: https://www.pragmatism.shenoyk.com
             mode == "development"
                 ? "http://127.0.0.1:3000"
-                : "https://www.pragmatism.shenoyk.com/api"
+                : "/api"
         ),
     },
 }));
