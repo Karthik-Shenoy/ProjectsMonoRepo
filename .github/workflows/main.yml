@@ -35,11 +35,11 @@ jobs:
           # Encode the env file content to preserve newlines safely
           SCRIPT_B64="$(printf '%s' "${SET_ENV_SCRIPT}" | base64 -w0)"
 
-          ssh "${VM_USER}@${VM_HOST}" <<EOF
+          ssh -tt "${VM_USER}@${VM_HOST}" <<EOF
             set -euo pipefail
 
-            REPO_DIR="~/git_repos/ProjectsMonoRepo"
-            COMPOSE_FILE="~/git_repos/ProjectsMonoRepo/Pragmatism/docker-compose.prod.yml"
+            REPO_DIR="/~/git_repos/ProjectsMonoRepo"
+            COMPOSE_FILE="$REPO_DIR/Pragmatism/docker-compose.prod.yml"
 
             # Pull latest code and switch to deployment branch
             cd "\$REPO_DIR"
@@ -62,7 +62,7 @@ jobs:
             docker compose -f "\$COMPOSE_FILE" up -d --remove-orphans
 
             # Reload Nginx (host reverse proxy to localhost:8080 and :3000)
-            sudo systemctl reload nginx || sudo systemctl restart nginx
+            sudo -n systemctl reload nginx || sudo -n systemctl restart nginx
           EOF
 
       - name: Deployment Complete
