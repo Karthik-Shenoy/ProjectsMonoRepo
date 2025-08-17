@@ -32,7 +32,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           SET_ENV_SCRIPT: ${{ secrets.SET_ENV_SCRIPT }} # Expect KEY=VALUE lines
         run: |
-          ssh -tt "${VM_USER}@${VM_HOST}" "GHCR_TOKEN='${GHCR_TOKEN}' GHCR_USERNAME='${GHCR_USERNAME}' bash -se" << 'EOF'
+          ssh -tt "${VM_USER}@${VM_HOST}" "GHCR_TOKEN='${GHCR_TOKEN}' GHCR_USERNAME='${GHCR_USERNAME}' SET_ENV_SCRIPT='${SET_ENV_SCRIPT}' bash -se" << 'EOF'
             set -euo pipefail
 
             REPO_DIR="$HOME/git_repos/ProjectsMonoRepo"
