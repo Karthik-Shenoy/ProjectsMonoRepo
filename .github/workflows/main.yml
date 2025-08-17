@@ -32,7 +32,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           SET_ENV_SCRIPT: ${{ secrets.SET_ENV_SCRIPT }} # Expect KEY=VALUE lines
         run: |
-          # Encode the env file content to preserve newlines safely
+          echo "${{ SET_ENV_SCRIPT }}" > .env
 
           ssh -tt "${VM_USER}@${VM_HOST}" "GHCR_TOKEN='${GHCR_TOKEN}' GHCR_USERNAME='${GHCR_USERNAME}' bash -se" << 'EOF'
             set -euo pipefail
