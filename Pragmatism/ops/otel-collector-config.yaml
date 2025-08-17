@@ -26,7 +26,7 @@ exporters:
     timeout: 5s
   
   file:
-    path: /var/lib/otel-output/otel-exported-logs.json
+    path: /tmp/otel-exported-logs.json
     format: json
 
 

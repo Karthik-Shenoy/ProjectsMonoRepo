@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
             // host-name: https://www.pragmatism.shenoyk.com
             mode == "development"
                 ? "http://127.0.0.1:3000"
-                : "https://www.pragmatism.shenoyk.com/api"
+                : "https://pragmatism.shenoyk.com/api"
         ),
     },
 }));
