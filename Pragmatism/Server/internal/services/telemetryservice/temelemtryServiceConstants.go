@@ -6,7 +6,7 @@ func getOtelEndPointUrl() string {
 	if cmdflags.IsDevMode() {
 		return "localhost:4318"
 	}
-	return ""
+	return "localhost:4138"
 }
 
 const TELEMETRY_SERVICE_NAME = "PragmatismWebApp.TelemetryService"
