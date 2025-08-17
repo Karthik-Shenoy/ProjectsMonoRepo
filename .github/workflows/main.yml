@@ -59,6 +59,7 @@ jobs:
             timeout 15s sudo -n systemctl reload nginx || \
             timeout 15s sudo -n systemctl restart nginx || \
             echo "Nginx reload/restart skipped (non-interactive sudo likely not permitted)."
+            exit
           EOF
 
       - name: Deployment Complete
