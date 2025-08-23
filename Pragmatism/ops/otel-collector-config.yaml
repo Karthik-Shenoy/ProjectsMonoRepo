@@ -20,6 +20,8 @@ exporters:
   clickhouse:
     endpoint: tcp://clickhouse:9000?dial_timeout=10s
     database: otel
+    username: oteluser
+    password: otelpass
     async_insert: true
     ttl: 72h
     compress: lz4
