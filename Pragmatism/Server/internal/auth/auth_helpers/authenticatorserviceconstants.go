@@ -15,7 +15,7 @@ func GetAuthRedirectURL() string {
 	if cmdflags.IsDevMode() {
 		return "http://127.0.0.1:3000/auth/callback"
 	}
-	return "https://www.pragmatism.shenoyk.com/api/auth/callback"
+	return "https://pragmatism.shenoyk.com/api/auth/callback"
 }
 
 type OAuthServerTokensResponse struct {

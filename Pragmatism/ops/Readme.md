@@ -1,2 +1,2 @@
 ## Observability stack
-- current stack otel collector elastic search and grafana
+- current stack: OTEL Collector, ClickHouse, and Grafana (with ClickHouse datasource)
