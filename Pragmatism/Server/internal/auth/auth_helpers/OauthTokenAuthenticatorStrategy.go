@@ -196,7 +196,6 @@ func (authStrategy *OauthTokenAuthenticatorStrategy) exchangeAuthCodeForAccessTo
 	response, err := authStrategy.httpClient.Do(req)
 
 	// Make POST request
-
 	if err != nil {
 		return nil, apperrors.NewAppError(
 			apperrors.AuthHelpers_NonRetryable_FailedToBuildAccessTokenRequest,

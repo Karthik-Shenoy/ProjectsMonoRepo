@@ -36,7 +36,7 @@ func NewUserModel(dbCacheInstance *db_cache_service.DBCacheService, dbInstance *
 
 func (mdl *UsersModelService) DoesUserExist(userId string) (bool, *apperrors.AppError) {
 
-	queryResponsePayload, err := mdl.dbCacheInstance.Query(fmt.Sprintf("Select * from users where id = '%s'", userId))
+	queryResponsePayload, err := mdl.dbCacheInstance.Query(fmt.Sprintf("Select * from users where id = '%s'", userId), true /* shouldForceFetch */)
 
 	if err != nil {
 
@@ -53,7 +53,7 @@ func (mdl *UsersModelService) DoesUserExist(userId string) (bool, *apperrors.App
 }
 
 func (mdl *UsersModelService) GetUser(userId string) (*User, *apperrors.AppError) {
-	queryResponsePayload, err := mdl.dbCacheInstance.Query(fmt.Sprintf("Select * from users where id = '%s'", userId))
+	queryResponsePayload, err := mdl.dbCacheInstance.Query(fmt.Sprintf("Select * from users where id = '%s'", userId), true /* shouldForceFetch */)
 
 	if err != nil {
 		return nil, apperrors.NewAppErrorFromLowerLayerError(
@@ -94,7 +94,7 @@ func (mdl *UsersModelService) GetSolvedTasks(userId string) ([]api.SolvedTask, *
 	JOIN
     	tasks t ON st.taskId = t.id;
 	`
-	queryResponsePayload, err := mdl.dbCacheInstance.Query(query)
+	queryResponsePayload, err := mdl.dbCacheInstance.Query(query, true /* shouldForceFetch */)
 	if err != nil {
 		return nil, apperrors.NewAppErrorFromLowerLayerError(
 			apperrors.UsersModelService_Retryable_FailedToGetSolvedTasks,
@@ -158,9 +158,12 @@ func init() {
 
 		dbCacheService, ok := args[0].(*db_cache_service.DBCacheService)
 		if !ok || dbCacheService == nil {
-			return nil, fmt.Errorf("UsersModelService.factory: invalid argument type or nil value")
+			return nil, fmt.Errorf("UsersModelService.factory: invalid argument type or nil value, dbCacheService")
 		}
 		dbService, ok := args[1].(*database_service.DatabaseService)
+		if !ok || dbService == nil {
+			return nil, fmt.Errorf("UsersModelService.factory: invalid argument type or nil value, dbService")
+		}
 		return &UsersModelService{
 			dbCacheInstance: dbCacheService,
 			dbInstance:      dbService,

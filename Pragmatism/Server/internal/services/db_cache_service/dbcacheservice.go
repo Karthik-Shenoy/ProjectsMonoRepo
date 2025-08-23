@@ -42,9 +42,9 @@ type DBCacheService struct {
 	cache     map[string]*CacheRecord
 }
 
-func (dbCache *DBCacheService) Query(query string) ([]byte, *apperrors.AppError) {
+func (dbCache *DBCacheService) Query(query string, shouldForceFetch bool) ([]byte, *apperrors.AppError) {
 
-	if dbCache.cache[query] != nil {
+	if !shouldForceFetch && dbCache.cache[query] != nil {
 		if dbCache.cache[query].CreatedAt+dbCache.cache[query].TTL > helpers.GetCurrentUnixTime() {
 			return dbCache.cache[query].Data, nil
 		}
@@ -113,7 +113,6 @@ func (dbCache *DBCacheService) Query(query string) ([]byte, *apperrors.AppError)
 			default:
 				convertedMapRow[column] = *(values[i].(*[]byte))
 			}
-
 		}
 		convertedMapRows = append(convertedMapRows, convertedMapRow)
 	}

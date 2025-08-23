@@ -36,7 +36,7 @@ func (mdl TasksModelService) GetTasks() ([]Task, *apperrors.AppError) {
 
 	problems := make([]Task, 0)
 
-	payload, appErr := mdl.dbCacheInstance.Query("SELECT id, title, description, num_solves, markdown_url, task_dir, language FROM tasks")
+	payload, appErr := mdl.dbCacheInstance.Query("SELECT id, title, description, num_solves, markdown_url, task_dir, language FROM tasks", false /* shouldForceFetch */)
 
 	if appErr != nil {
 		return problems, apperrors.NewAppError(
@@ -61,7 +61,7 @@ func (mdl TasksModelService) GetTasks() ([]Task, *apperrors.AppError) {
 
 func (mdl TasksModelService) GetTaskFilesForTask(taskId uint32) ([]TaskFile, *apperrors.AppError) {
 
-	payload, appErr := mdl.dbCacheInstance.Query(fmt.Sprintf("SELECT * FROM task_files WHERE task_id = %d", taskId))
+	payload, appErr := mdl.dbCacheInstance.Query(fmt.Sprintf("SELECT * FROM task_files WHERE task_id = %d", taskId), false /* shouldForceFetch */)
 
 	if appErr != nil {
 		return nil, apperrors.NewAppError(
