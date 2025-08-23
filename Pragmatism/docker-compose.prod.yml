@@ -43,6 +43,10 @@ services:
     ports:
       - "8123:8123" # HTTP
       - "9000:9000" # Native TCP
+    environment:
+      - CLICKHOUSE_DB=otel
+      - CLICKHOUSE_USER=oteluser
+      - CLICKHOUSE_PASSWORD=otelpass
     ulimits:
       nofile:
         soft: 262144
