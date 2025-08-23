@@ -17,12 +17,15 @@ exporters:
   # prometheus:
   #   endpoint: "0.0.0.0:8889"
 
-  elasticsearch/logs:
-    endpoints: [ "http://elasticsearch:9200" ]
-    timeout: 5s
-
-  elasticsearch/traces:
-    endpoints: [ "http://elasticsearch:9200" ]
+  clickhouse:
+    endpoint: tcp://clickhouse:9000?dial_timeout=10s
+    database: otel
+    async_insert: true
+    ttl: 72h
+    compress: lz4
+    create_schema: true
+    logs_table_name: otel_logs
+    traces_table_name: otel_traces
     timeout: 5s
   
   file:
@@ -48,8 +51,8 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/logs, file]
+      exporters: [clickhouse, file]
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [elasticsearch/traces]
+      exporters: [clickhouse]

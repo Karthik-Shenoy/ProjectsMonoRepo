@@ -6,6 +6,8 @@ services:
       - "3000:3000"   # Host needs this for Nginx proxy_pass http://localhost:3000
     env_file:
       - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
     restart: unless-stopped
 
   client:
@@ -33,14 +35,21 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.6
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: clickhouse
     ports:
-      - "9200:9200"
+      - "8123:8123" # HTTP
+      - "9000:9000" # Native TCP
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    restart: unless-stopped
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -51,7 +60,12 @@ services:
     ports:
       - "4317:4317" # OTLP gRPC
       - "4318:4318" # OTLP HTTP
+    depends_on:
+      - clickhouse
 
 networks:
   default:
     name: pragmatism-net
+
+volumes:
+  clickhouse-data:
